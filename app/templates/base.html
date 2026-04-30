@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" class="h-full" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Email Automation Dashboard{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ["class", '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#eef4ff",
+              100: "#dbe8ff",
+              500: "#4f7cff",
+              600: "#3f67e6",
+              700: "#3354bf"
+            }
+          },
+          boxShadow: {
+            soft: "0 10px 30px rgba(15, 23, 42, 0.08)"
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
+  <div class="min-h-screen flex flex-col">
+    {% include "components/navbar.html" %}
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+    <footer class="border-t border-slate-200/70 dark:border-slate-700/70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-slate-500 dark:text-slate-400">
+        Email Automation System
+      </div>
+    </footer>
+  </div>
+  {% include "components/alerts.html" %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>

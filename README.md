@@ -89,6 +89,11 @@ uvicorn app.main:app --reload
 celery -A app.workers.celery_app.celery_app worker -l info
 ```
 
+### 7) Open frontend dashboard
+
+- [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- API docs remain at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
 ## API Endpoints
 
 - `POST /campaigns` create campaign

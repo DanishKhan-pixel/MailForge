@@ -9,3 +9,4 @@ celery[redis]
 redis
 email-validator
 python-json-logger
+jinja2

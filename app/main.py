@@ -1,6 +1,8 @@
 """FastAPI application entrypoint for production email campaigns."""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 from app.api.v1.campaigns import router as campaigns_router
 from app.core.config import settings
@@ -15,6 +17,13 @@ app = FastAPI(
 )
 
 app.include_router(campaigns_router)
+templates = Jinja2Templates(directory="app/templates")
+
+
+@app.get("/", response_class=HTMLResponse, tags=["UI"])
+def dashboard(request: Request) -> HTMLResponse:
+    """Serve the frontend dashboard."""
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/health", tags=["Health"])

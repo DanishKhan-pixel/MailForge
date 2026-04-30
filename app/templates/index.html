@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Email Automation Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+  <section class="xl:col-span-1 rounded-2xl bg-white dark:bg-slate-800 shadow-soft p-5 sm:p-6">
+    <h2 class="text-lg font-semibold mb-4">Create Campaign</h2>
+    <form id="campaignForm" class="space-y-4">
+      <div>
+        <label for="subject" class="block text-sm font-medium mb-1">Subject</label>
+        <input id="subject" type="text" maxlength="200" required
+          class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          placeholder="Campaign subject">
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-medium mb-1">Message</label>
+        <textarea id="message" rows="7" maxlength="10000" required
+          class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          placeholder="Hello {name}, welcome aboard..."></textarea>
+      </div>
+      <button id="createCampaignBtn" type="submit"
+        class="w-full rounded-xl bg-brand-600 px-4 py-2.5 text-white font-medium hover:bg-brand-700 disabled:opacity-50 transition">
+        Create Campaign
+      </button>
+    </form>
+  </section>
+
+  <section class="xl:col-span-2 rounded-2xl bg-white dark:bg-slate-800 shadow-soft p-5 sm:p-6">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold">Campaign Actions</h2>
+      <span id="activeCampaignBadge" class="text-xs px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700">
+        No campaign selected
+      </span>
+    </div>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h3 class="font-medium mb-3">Upload CSV</h3>
+        <form id="uploadForm" class="space-y-3">
+          <div id="dropzone"
+            class="rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 p-6 text-center cursor-pointer hover:border-brand-500 transition">
+            <input id="csvFile" type="file" accept=".csv,text/csv" class="hidden">
+            <p class="text-sm text-slate-600 dark:text-slate-300">
+              Drag & drop CSV here, or <span class="text-brand-600 font-medium">browse</span>
+            </p>
+            <p id="fileName" class="mt-2 text-xs text-slate-500 dark:text-slate-400">No file selected</p>
+          </div>
+          <button id="uploadBtn" type="submit"
+            class="w-full rounded-xl bg-slate-900 dark:bg-brand-600 px-4 py-2.5 text-white font-medium hover:opacity-90 disabled:opacity-50 transition">
+            Upload Recipients
+          </button>
+        </form>
+      </div>
+
+      <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <h3 class="font-medium mb-3">Send Campaign</h3>
+        <form id="sendForm" class="space-y-3">
+          <div>
+            <label for="delay" class="block text-sm mb-1">Delay (seconds)</label>
+            <input id="delay" type="number" min="3" max="5" value="4"
+              class="w-28 rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2">
+          </div>
+          <button id="sendBtn" type="submit"
+            class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-white font-medium hover:bg-brand-700 disabled:opacity-50 transition">
+            <svg id="sendSpinner" class="hidden animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span>Send Emails</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="mt-6 rounded-2xl bg-white dark:bg-slate-800 shadow-soft p-5 sm:p-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-lg font-semibold">Status & Logs</h2>
+    <div class="flex items-center gap-2">
+      <button id="refreshStatusBtn"
+        class="rounded-xl border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        Refresh Status
+      </button>
+      <button id="refreshCampaignsBtn"
+        class="rounded-xl border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        Refresh Campaigns
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+    <div class="rounded-xl bg-slate-100 dark:bg-slate-700 p-4">
+      <p class="text-sm text-slate-500 dark:text-slate-300">Total Emails</p>
+      <p id="totalCount" class="text-2xl font-semibold">0</p>
+    </div>
+    <div class="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-4">
+      <p class="text-sm text-emerald-700 dark:text-emerald-300">Sent</p>
+      <p id="sentCount" class="text-2xl font-semibold text-emerald-700 dark:text-emerald-300">0</p>
+    </div>
+    <div class="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-4">
+      <p class="text-sm text-rose-700 dark:text-rose-300">Failed</p>
+      <p id="failedCount" class="text-2xl font-semibold text-rose-700 dark:text-rose-300">0</p>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="flex justify-between text-sm mb-1">
+      <span>Progress</span>
+      <span id="progressLabel">0%</span>
+    </div>
+    <div class="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+      <div id="progressBar" class="h-full bg-brand-600 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </div>
+  <p id="statusText" class="mt-3 text-sm text-slate-600 dark:text-slate-300">Status: idle</p>
+  <p id="lastError" class="mt-1 text-sm text-rose-600 dark:text-rose-400"></p>
+
+  <div class="mt-5">
+    <h3 class="font-medium mb-2">Campaigns</h3>
+    <div id="campaignList" class="space-y-2 text-sm"></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const API_BASE = "";
+  let activeCampaignId = null;
+  let pollTimer = null;
+
+  const campaignForm = document.getElementById("campaignForm");
+  const subjectEl = document.getElementById("subject");
+  const messageEl = document.getElementById("message");
+  const createCampaignBtn = document.getElementById("createCampaignBtn");
+
+  const uploadForm = document.getElementById("uploadForm");
+  const csvFileInput = document.getElementById("csvFile");
+  const fileNameEl = document.getElementById("fileName");
+  const dropzone = document.getElementById("dropzone");
+  const uploadBtn = document.getElementById("uploadBtn");
+
+  const sendForm = document.getElementById("sendForm");
+  const sendBtn = document.getElementById("sendBtn");
+  const sendSpinner = document.getElementById("sendSpinner");
+  const delayEl = document.getElementById("delay");
+
+  const refreshStatusBtn = document.getElementById("refreshStatusBtn");
+  const refreshCampaignsBtn = document.getElementById("refreshCampaignsBtn");
+  const totalCountEl = document.getElementById("totalCount");
+  const sentCountEl = document.getElementById("sentCount");
+  const failedCountEl = document.getElementById("failedCount");
+  const progressBarEl = document.getElementById("progressBar");
+  const progressLabelEl = document.getElementById("progressLabel");
+  const statusTextEl = document.getElementById("statusText");
+  const lastErrorEl = document.getElementById("lastError");
+  const campaignListEl = document.getElementById("campaignList");
+  const activeCampaignBadge = document.getElementById("activeCampaignBadge");
+  const toastContainer = document.getElementById("toastContainer");
+  const themeToggle = document.getElementById("themeToggle");
+
+  function toast(message, type = "success") {
+    const palette = type === "success" ? "bg-emerald-600" : type === "error" ? "bg-rose-600" : "bg-slate-700";
+    const el = document.createElement("div");
+    el.className = `${palette} text-white px-4 py-2 rounded-xl shadow-soft text-sm`;
+    el.textContent = message;
+    toastContainer.appendChild(el);
+    setTimeout(() => {
+      el.classList.add("opacity-0", "transition", "duration-300");
+      setTimeout(() => el.remove(), 300);
+    }, 2600);
+  }
+
+  function setLoading(button, spinner, loading) {
+    button.disabled = loading;
+    if (spinner) spinner.classList.toggle("hidden", !loading);
+  }
+
+  function requireCampaign() {
+    if (!activeCampaignId) {
+      toast("Create or select a campaign first.", "error");
+      return false;
+    }
+    return true;
+  }
+
+  function applyCampaignBadge() {
+    activeCampaignBadge.textContent = activeCampaignId ? `Active: ${activeCampaignId}` : "No campaign selected";
+  }
+
+  function validateCsv(file) {
+    if (!file) return "Please select a CSV file.";
+    const ok = file.name.toLowerCase().endsWith(".csv") || file.type.includes("csv");
+    if (!ok) return "Only .csv files are allowed.";
+    return null;
+  }
+
+  async function createCampaign(subject, message) {
+    const res = await fetch(`${API_BASE}/campaigns`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({subject, message})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Campaign creation failed.");
+    return data;
+  }
+
+  async function uploadCsv(campaignId, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${API_BASE}/campaigns/${campaignId}/upload`, {method: "POST", body: formData});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "CSV upload failed.");
+    return data;
+  }
+
+  async function sendCampaign(campaignId, delaySeconds) {
+    const res = await fetch(`${API_BASE}/campaigns/${campaignId}/send`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({delay_seconds: delaySeconds})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Send trigger failed.");
+    return data;
+  }
+
+  async function fetchStatus(campaignId) {
+    const res = await fetch(`${API_BASE}/campaigns/${campaignId}/status`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Status fetch failed.");
+    return data;
+  }
+
+  async function fetchCampaigns() {
+    const res = await fetch(`${API_BASE}/campaigns?page=1&page_size=20`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Campaign list fetch failed.");
+    return data.items || [];
+  }
+
+  function renderCampaigns(items) {
+    campaignListEl.innerHTML = "";
+    if (!items.length) {
+      campaignListEl.innerHTML = '<p class="text-slate-500 dark:text-slate-400">No campaigns yet.</p>';
+      return;
+    }
+    items.forEach((item) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "w-full text-left rounded-xl border border-slate-200 dark:border-slate-700 p-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition";
+      row.innerHTML = `<div class="flex items-center justify-between gap-2">
+          <span class="font-medium">${item.subject}</span>
+          <span class="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-600">${item.status}</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">${item.id}</p>`;
+      row.addEventListener("click", () => {
+        activeCampaignId = item.id;
+        applyCampaignBadge();
+        updateStatus();
+      });
+      campaignListEl.appendChild(row);
+    });
+  }
+
+  async function refreshCampaignList() {
+    try {
+      const items = await fetchCampaigns();
+      renderCampaigns(items);
+      if (!activeCampaignId && items.length) {
+        activeCampaignId = items[0].id;
+        applyCampaignBadge();
+        updateStatus();
+      }
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  }
+
+  async function updateStatus() {
+    if (!activeCampaignId) return;
+    try {
+      const data = await fetchStatus(activeCampaignId);
+      totalCountEl.textContent = data.total_emails;
+      sentCountEl.textContent = data.sent_count;
+      failedCountEl.textContent = data.failed_count;
+      progressBarEl.style.width = `${data.progress_percent}%`;
+      progressLabelEl.textContent = `${data.progress_percent}%`;
+      statusTextEl.textContent = `Status: ${data.status}`;
+      lastErrorEl.textContent = data.last_error ? `Last error: ${data.last_error}` : "";
+
+      if (data.status === "running") {
+        if (!pollTimer) {
+          pollTimer = setInterval(updateStatus, 2500);
+        }
+      } else if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+      }
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  }
+
+  campaignForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const subject = subjectEl.value.trim();
+    const message = messageEl.value.trim();
+    if (!subject || !message) {
+      toast("Subject and message are required.", "error");
+      return;
+    }
+    try {
+      setLoading(createCampaignBtn, null, true);
+      const data = await createCampaign(subject, message);
+      activeCampaignId = data.id;
+      applyCampaignBadge();
+      toast("Campaign created successfully.");
+      await refreshCampaignList();
+      await updateStatus();
+    } catch (err) {
+      toast(err.message, "error");
+    } finally {
+      setLoading(createCampaignBtn, null, false);
+    }
+  });
+
+  dropzone.addEventListener("click", () => csvFileInput.click());
+  dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("border-brand-500", "bg-brand-50", "dark:bg-slate-700");
+  });
+  dropzone.addEventListener("dragleave", () => {
+    dropzone.classList.remove("border-brand-500", "bg-brand-50", "dark:bg-slate-700");
+  });
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("border-brand-500", "bg-brand-50", "dark:bg-slate-700");
+    const file = e.dataTransfer.files?.[0];
+    const err = validateCsv(file);
+    if (err) return toast(err, "error");
+    csvFileInput.files = e.dataTransfer.files;
+    fileNameEl.textContent = file.name;
+  });
+  csvFileInput.addEventListener("change", () => {
+    fileNameEl.textContent = csvFileInput.files?.[0]?.name || "No file selected";
+  });
+
+  uploadForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!requireCampaign()) return;
+    const file = csvFileInput.files?.[0];
+    const err = validateCsv(file);
+    if (err) return toast(err, "error");
+    try {
+      setLoading(uploadBtn, null, true);
+      const data = await uploadCsv(activeCampaignId, file);
+      toast(`${data.message} (${data.recipient_count} recipients)`);
+      await updateStatus();
+      csvFileInput.value = "";
+      fileNameEl.textContent = "No file selected";
+    } catch (error) {
+      toast(error.message, "error");
+    } finally {
+      setLoading(uploadBtn, null, false);
+    }
+  });
+
+  sendForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!requireCampaign()) return;
+    const delay = Number(delayEl.value || 4);
+    if (delay < 3 || delay > 5) {
+      toast("Delay must be between 3 and 5 seconds.", "error");
+      return;
+    }
+    try {
+      setLoading(sendBtn, sendSpinner, true);
+      const data = await sendCampaign(activeCampaignId, delay);
+      toast(data.message || "Send started.");
+      await updateStatus();
+    } catch (error) {
+      toast(error.message, "error");
+    } finally {
+      setLoading(sendBtn, sendSpinner, false);
+    }
+  });
+
+  refreshStatusBtn.addEventListener("click", () => {
+    if (!requireCampaign()) return;
+    updateStatus();
+  });
+  refreshCampaignsBtn.addEventListener("click", refreshCampaignList);
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+  const savedTheme = localStorage.getItem("theme") || "light";
+  applyTheme(savedTheme);
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const next = current === "light" ? "dark" : "light";
+    localStorage.setItem("theme", next);
+    applyTheme(next);
+  });
+
+  applyCampaignBadge();
+  refreshCampaignList();
+</script>
+{% endblock %}
