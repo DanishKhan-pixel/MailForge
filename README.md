@@ -1,56 +1,55 @@
-# Email Automation System (FastAPI)
+# Email Automation System (Production-Ready FastAPI)
 
-Production-style FastAPI project to upload a CSV file and send personalized emails one-by-one through Gmail SMTP with safe throttling, retries, status tracking, and logs.
+Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLAlchemy, Alembic, Celery, and Redis.
 
 ## Features
 
-- FastAPI backend with modular clean structure (`routes`, `services`, `utils`, `models`)
-- CSV upload + parsing (`email` required, `name` optional)
-- Email validation before sending
-- Personalized templates with placeholders (example: `Hello {name}`)
-- Background email sending using FastAPI `BackgroundTasks`
-- Sequential sending with configurable 3-5 second delay
-- Retry support for transient failures
-- Status endpoint for progress tracking
-- File logging for sent/failed emails
-- Environment variable based SMTP credential management
-- Basic in-memory rate limiting for key endpoints
+- Campaign lifecycle management (`pending`, `running`, `completed`)
+- Recipient upload through CSV (`email` required, `name` optional)
+- Personalized email templates with placeholders like `{name}`
+- Async sending with Celery worker (non-blocking API)
+- Retry support and per-recipient status tracking
+- Email logs persisted in PostgreSQL and app logs stored in file
+- Pagination and campaign status filtering
+- Basic API rate limiting and environment-driven configuration
 
-## Project Structure
+## Architecture
 
 ```text
 app/
   main.py
-  routes/
-    csv_routes.py
-    email_routes.py
-    status_routes.py
+  api/
+    v1/campaigns.py
+  core/
+    config.py
+    logging.py
+    rate_limit.py
+  db/
+    base.py
+    session.py
+    models/
+      campaign.py
+      recipient.py
+      email_log.py
+  schemas/
+    campaign.py
+    recipient.py
+    common.py
   services/
+    campaign_service.py
     csv_service.py
     email_service.py
-    state_service.py
-  utils/
-    config.py
-    email_validator.py
-    logger.py
-    rate_limit.py
-    template.py
-  models/
-    schemas.py
+  workers/
+    celery_app.py
+    tasks.py
+alembic/
+docker-compose.yml
 requirements.txt
-.env.example
-sample_data/recipients.csv
 ```
-
-## Prerequisites
-
-- Python 3.11+ recommended
-- Gmail account with **App Password** enabled
-  - Do not use your normal Gmail password
 
 ## Setup
 
-1. Create virtual environment and install dependencies:
+### 1) Install dependencies
 
 ```bash
 python3 -m venv .venv
@@ -58,75 +57,56 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2. Create your env file:
+### 2) Start Postgres and Redis
+
+```bash
+docker compose up -d
+```
+
+### 3) Configure environment
 
 ```bash
 cp .env.example .env
 ```
 
-3. Edit `.env` with your real Gmail credentials:
+Fill real SMTP values in `.env` (use Gmail App Password).
 
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your_gmail_address@gmail.com
-SMTP_PASSWORD=your_gmail_app_password
-SMTP_FROM_EMAIL=your_gmail_address@gmail.com
-RETRY_COUNT=2
+### 4) Run database migrations
+
+```bash
+alembic upgrade head
 ```
 
-4. Run the API:
+### 5) Start API
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-5. Open Swagger docs:
+### 6) Start Celery worker
 
-- [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+```bash
+celery -A app.workers.celery_app.celery_app worker -l info
+```
 
 ## API Endpoints
 
-- `POST /api/upload-csv`
-  - Form-data: `file` (CSV)
-  - Required CSV column: `email`
-  - Optional CSV column: `name`
+- `POST /campaigns` create campaign
+- `POST /campaigns/{id}/upload` upload CSV recipients
+- `POST /campaigns/{id}/send` trigger async send
+- `GET /campaigns` list campaigns with pagination/filter
+- `GET /campaigns/{id}` campaign details
+- `GET /campaigns/{id}/status` progress summary
+- `GET /health` service health
 
-- `POST /api/send-emails`
-  - JSON body example:
-  ```json
-  {
-    "subject": "Welcome to our service",
-    "message": "Hello {name}, thanks for joining us!",
-    "delay_seconds": 4
-  }
-  ```
+## Example flow
 
-- `GET /api/status`
-  - Returns running state, totals, success count, failure count, and latest error
+1. Create a campaign with `subject` and `message`
+2. Upload recipient CSV for the campaign
+3. Trigger `send`
+4. Poll `status` endpoint to monitor completion
 
-- `GET /health`
-  - Basic health check
+## Security notes
 
-## Safe Sending Notes
-
-- Emails are sent one by one (not batched in single SMTP call)
-- Delay is enforced between sends to reduce spam-like behavior
-- Failures are logged and the system continues with remaining recipients
-- Retries are attempted before marking a recipient as failed
-
-## Logs
-
-- Runtime logs are written to:
-  - `logs/email_automation.log`
-
-## Example CSV
-
-See:
-
-- `sample_data/recipients.csv`
-
-## Important Security Note
-
-- Never commit `.env` to git
-- Keep your SMTP app password private
+- Keep `.env` private and never commit secrets
+- Use Gmail App Password (not account password)
