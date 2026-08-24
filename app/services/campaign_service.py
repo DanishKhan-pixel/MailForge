@@ -21,6 +21,12 @@ def create_campaign(db: Session, subject: str, message: str) -> Campaign:
     db.refresh(campaign)
     return campaign
 
+def name():
+    """
+    Purpose: 
+    """
+    
+# end def
 
 def get_campaign_or_404(db: Session, campaign_id: uuid.UUID) -> Campaign:
     campaign = db.get(Campaign, campaign_id)
