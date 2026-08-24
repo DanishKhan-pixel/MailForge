@@ -30,3 +30,9 @@ def dashboard(request: Request) -> HTMLResponse:
 def health_check() -> dict[str, str]:
     """Health check endpoint used by orchestrators."""
     return {"status": "ok"}
+
+
+@app.get("/dashboard", response_class=HTMLResponse, tags=["UI"])
+def dashboard(request: Request) -> HTMLResponse:
+    """Serve the frontend dashboard."""
+    return templates.TemplateResponse(request=request, name="index.html")
