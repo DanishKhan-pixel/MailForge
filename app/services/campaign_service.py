@@ -95,11 +95,3 @@ def latest_campaign_error(db: Session, campaign_id: uuid.UUID) -> str | None:
         .limit(1)
     )
     return db.scalar(stmt)
-
-
-def name():
-    """
-    Purpose: 
-    """
-    
-# end def
