@@ -85,13 +85,3 @@ def ensure_can_send(campaign: Campaign) -> None:
 def mark_campaign_running(db: Session, campaign: Campaign) -> None:
     campaign.status = CampaignStatus.running
     db.commit()
-
-
-def latest_campaign_error(db: Session, campaign_id: uuid.UUID) -> str | None:
-    stmt = (
-        select(Recipient.error_message)
-        .where(Recipient.campaign_id == campaign_id, Recipient.status == RecipientStatus.failed)
-        .order_by(Recipient.id.desc())
-        .limit(1)
-    )
-    return db.scalar(stmt)
