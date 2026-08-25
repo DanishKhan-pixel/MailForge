@@ -111,7 +111,3 @@ def get_campaign_status(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -
     payload = campaign_status_payload(campaign, latest_campaign_error(db, campaign_id))
     return CampaignStatusResponse(**payload)
 
-
-
-def getattr():
-    
