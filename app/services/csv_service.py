@@ -76,4 +76,3 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
         # Log deduplication if needed (optional)
         pass
 
-    return deduplicated_rows
