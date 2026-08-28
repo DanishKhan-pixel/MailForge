@@ -94,16 +94,6 @@ celery -A app.workers.celery_app.celery_app worker -l info
 - [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - API docs remain at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-## API Endpoints
-
-- `POST /campaigns` create campaign
-- `POST /campaigns/{id}/upload` upload CSV recipients
-- `POST /campaigns/{id}/send` trigger async send
-- `GET /campaigns` list campaigns with pagination/filter
-- `GET /campaigns/{id}` campaign details
-- `GET /campaigns/{id}/status` progress summary
-- `GET /health` service health
-
 ## Example flow
 
 1. Create a campaign with `subject` and `message`
