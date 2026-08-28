@@ -110,8 +110,3 @@ celery -A app.workers.celery_app.celery_app worker -l info
 2. Upload recipient CSV for the campaign
 3. Trigger `send`
 4. Poll `status` endpoint to monitor completion
-
-## Security notes
-
-- Keep `.env` private and never commit secrets
-- Use Gmail App Password (not account password)
