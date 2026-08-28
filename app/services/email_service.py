@@ -1,4 +1,3 @@
-"""SMTP email sending service."""
 
 from asyncio import protocols
 from __future__ import annotations
