@@ -91,4 +91,4 @@ celery -A app.workers.celery_app.celery_app worker -l info
 
 ### 7) Open frontend dashboard
 
-- [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- [http://localhost:8000/](http://localhost:8000/)
