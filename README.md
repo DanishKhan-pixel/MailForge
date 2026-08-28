@@ -92,11 +92,3 @@ celery -A app.workers.celery_app.celery_app worker -l info
 ### 7) Open frontend dashboard
 
 - [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- API docs remain at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-## Example flow
-
-1. Create a campaign with `subject` and `message`
-2. Upload recipient CSV for the campaign
-3. Trigger `send`
-4. Poll `status` endpoint to monitor completion
