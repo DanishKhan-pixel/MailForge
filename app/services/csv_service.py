@@ -69,7 +69,3 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
             seen_emails.add(email)
             deduplicated_rows.append(row)
     
-    if len(deduplicated_rows) < len(rows):
-        # Log deduplication if needed (optional)
-        pass
-
