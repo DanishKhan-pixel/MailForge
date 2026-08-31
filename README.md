@@ -89,6 +89,3 @@ uvicorn app.main:app --reload
 celery -A app.workers.celery_app.celery_app worker -l info
 ```
 
-### 7) Open frontend dashboard
-
-- [http://localhost:8000/](http://localhost:8000/)
