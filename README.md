@@ -15,37 +15,37 @@ Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLA
 
 ## Architecture
 
-```text
 app/
-  main.py
-  api/
-    v1/campaigns.py
-  core/
-    config.py
-    logging.py
-    rate_limit.py
-  db/
-    base.py
-    session.py
-    models/
-      campaign.py
-      recipient.py
-      email_log.py
-  schemas/
-    campaign.py
-    recipient.py
-    common.py
-  services/
-    campaign_service.py
-    csv_service.py
-    email_service.py
-  workers/
-    celery_app.py
-    tasks.py
+main.py
+api/
+v1/campaigns.py
+core/
+config.py
+logging.py
+rate_limit.py
+db/
+base.py
+session.py
+models/
+campaign.py
+recipient.py
+email_log.py
+schemas/
+campaign.py
+recipient.py
+common.py
+services/
+campaign_service.py
+csv_service.py
+email_service.py
+workers/
+celery_app.py
+tasks.py
 alembic/
 docker-compose.yml
 requirements.txt
-```
+
+````
 
 ## Setup
 
@@ -55,7 +55,7 @@ requirements.txt
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
+````
 
 ### 2) Start Postgres and Redis
 
@@ -88,4 +88,3 @@ uvicorn app.main:app --reload
 ```bash
 celery -A app.workers.celery_app.celery_app worker -l info
 ```
-
