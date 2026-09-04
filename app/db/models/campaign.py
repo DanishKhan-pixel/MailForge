@@ -36,3 +36,7 @@ class Campaign(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     recipients = relationship("Recipient", back_populates="campaign", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"<Campaign(id={self.id}, subject={self.subject!r}, status={self.status!r})>"
+
