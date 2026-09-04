@@ -31,3 +31,10 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], No
             queue.append(now)
 
     return dependency
+
+
+def reset_rate_limits() -> None:
+    """Clear all in-memory rate limiting counters."""
+    with _lock:
+        _requests.clear()
+
