@@ -1,5 +1,3 @@
-"""CSV parsing utilities for recipient ingestion."""
-
 from __future__ import annotations
 
 import csv
@@ -60,4 +58,16 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
     if not rows:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No valid recipients found.")
 
-    return rows
+    # Deduplicate recipients: keep first occurrence, preserve order
+    unique_rows: dict[str, dict[str, str]] = {}
+    seen_emails: set[str] = set()
+    deduplicated_rows: list[dict[str, str]] = []
+    
+    for row in rows:
+        email = row["email"].lower()
+        if email not in seen_emails:
+            unique_rows[email] = row
+            seen_emails.add(email)
+            deduplicated_rows.append(row)
+
+    return deduplicated_rows

@@ -15,37 +15,37 @@ Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLA
 
 ## Architecture
 
-```text
 app/
-  main.py
-  api/
-    v1/campaigns.py
-  core/
-    config.py
-    logging.py
-    rate_limit.py
-  db/
-    base.py
-    session.py
-    models/
-      campaign.py
-      recipient.py
-      email_log.py
-  schemas/
-    campaign.py
-    recipient.py
-    common.py
-  services/
-    campaign_service.py
-    csv_service.py
-    email_service.py
-  workers/
-    celery_app.py
-    tasks.py
+main.py
+api/
+v1/campaigns.py
+core/
+config.py
+logging.py
+rate_limit.py
+db/
+base.py
+session.py
+models/
+campaign.py
+recipient.py
+email_log.py
+schemas/
+campaign.py
+recipient.py
+common.py
+services/
+campaign_service.py
+csv_service.py
+email_service.py
+workers/
+celery_app.py
+tasks.py
 alembic/
 docker-compose.yml
 requirements.txt
-```
+
+````
 
 ## Setup
 
@@ -55,7 +55,7 @@ requirements.txt
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
+````
 
 ### 2) Start Postgres and Redis
 
@@ -88,30 +88,3 @@ uvicorn app.main:app --reload
 ```bash
 celery -A app.workers.celery_app.celery_app worker -l info
 ```
-
-### 7) Open frontend dashboard
-
-- [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- API docs remain at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-## API Endpoints
-
-- `POST /campaigns` create campaign
-- `POST /campaigns/{id}/upload` upload CSV recipients
-- `POST /campaigns/{id}/send` trigger async send
-- `GET /campaigns` list campaigns with pagination/filter
-- `GET /campaigns/{id}` campaign details
-- `GET /campaigns/{id}/status` progress summary
-- `GET /health` service health
-
-## Example flow
-
-1. Create a campaign with `subject` and `message`
-2. Upload recipient CSV for the campaign
-3. Trigger `send`
-4. Poll `status` endpoint to monitor completion
-
-## Security notes
-
-- Keep `.env` private and never commit secrets
-- Use Gmail App Password (not account password)

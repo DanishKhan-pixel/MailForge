@@ -110,3 +110,4 @@ def get_campaign_status(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -
     campaign = get_campaign_or_404(db, campaign_id)
     payload = campaign_status_payload(campaign, latest_campaign_error(db, campaign_id))
     return CampaignStatusResponse(**payload)
+
