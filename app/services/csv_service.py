@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 import csv
 import io
@@ -69,4 +70,4 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
             seen_emails.add(email)
             deduplicated_rows.append(row)
 
-
+    return deduplicated_rows
