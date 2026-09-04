@@ -1,5 +1,3 @@
-
-from asyncio import protocols
 from __future__ import annotations
 
 import smtplib
@@ -13,7 +11,7 @@ class EmailService:
 
     def send_email(self, recipient: str, subject: str, body: str) -> None:
         message = EmailMessage()
-        message["From`"] = settings.smtp_from_email
+        message["From"] = settings.smtp_from_email
         message["To"] = recipient
         message["Subject"] = subject
         message.set_content(body)
