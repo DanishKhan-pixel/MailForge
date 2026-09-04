@@ -38,3 +38,7 @@ class Recipient(Base):
 
     campaign = relationship("Campaign", back_populates="recipients")
     logs = relationship("EmailLog", back_populates="recipient", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"<Recipient(id={self.id}, campaign_id={self.campaign_id}, email={self.email!r}, status={self.status!r})>"
+
