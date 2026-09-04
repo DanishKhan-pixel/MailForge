@@ -12,7 +12,6 @@ class EmailService:
     """Encapsulates outbound email delivery implementation."""
 
     def send_email(self, recipient: str, subject: str, body: str) -> None:
-        print(f"Sending email>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         message = EmailMessage()
         message["From`"] = settings.smtp_from_email
         message["To"] = recipient
