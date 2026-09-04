@@ -15,6 +15,7 @@ Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLA
 
 ## Architecture
 
+```
 app/
 main.py
 api/
@@ -44,8 +45,7 @@ tasks.py
 alembic/
 docker-compose.yml
 requirements.txt
-
-````
+```
 
 ## Setup
 
