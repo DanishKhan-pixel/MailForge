@@ -1,5 +1,7 @@
 """Application configuration loaded from environment variables."""
 
+from __future__ import annotations
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -28,5 +30,11 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
+    @property
+    def is_development(self) -> bool:
+        """Check if application is running in development mode."""
+        return self.app_env.lower() in ("dev", "development")
+
 
 settings = Settings()
+
