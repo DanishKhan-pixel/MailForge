@@ -1,6 +1,5 @@
 """Campaign orchestration business logic."""
 
-from app.db import models
 from __future__ import annotations
 
 import logging
@@ -22,12 +21,20 @@ def create_campaign(db: Session, subject: str, message: str) -> Campaign:
     db.refresh(campaign)
     return campaign
 
-def name():
-    """
-    Purpose: 
-    """
-    
-# end def
+
+def latest_campaign_error(db: Session, campaign_id: uuid.UUID) -> str | None:
+    """Retrieve the error message from the most recently failed recipient for a campaign."""
+    query = (
+        select(Recipient.error_message)
+        .where(
+            Recipient.campaign_id == campaign_id,
+            Recipient.status == RecipientStatus.failed,
+            Recipient.error_message.isnot(None),
+        )
+        .order_by(Recipient.id.desc())
+        .limit(1)
+    )
+    return db.scalar(query)
 
 def get_campaign_or_404(db: Session, campaign_id: uuid.UUID) -> Campaign:
     campaign = db.get(Campaign, campaign_id)
