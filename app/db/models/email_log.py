@@ -24,3 +24,7 @@ class EmailLog(Base):
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     recipient = relationship("Recipient", back_populates="logs")
+
+    def __repr__(self) -> str:
+        return f"<EmailLog(id={self.id}, recipient_id={self.recipient_id}, status={self.status!r})>"
+
