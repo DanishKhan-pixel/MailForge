@@ -1,7 +1,12 @@
 """Common API response schemas."""
 
-from pydantic import BaseModel
+from __future__ import annotations
+
+from pydantic import BaseModel, Field
 
 
 class MessageResponse(BaseModel):
-    message: str
+    """Generic status message response schema."""
+
+    message: str = Field(..., description="Summary status message")
+
