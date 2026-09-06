@@ -88,3 +88,18 @@ uvicorn app.main:app --reload
 ```bash
 celery -A app.workers.celery_app.celery_app worker -l info
 ```
+
+## Running Tests
+
+Execute the automated pytest suite for unit, service, and API integration testing:
+
+```bash
+pytest
+```
+
+The test suite covers:
+- **API Endpoints**: Health checks and web dashboard endpoints.
+- **CSV Service**: Recipient CSV validation, formatting, and deduplication logic.
+- **Campaign Service**: Telemetry calculations and sending preconditions.
+- **Rate Limiting**: Sliding window request throttling and cache resets.
+
