@@ -8,7 +8,11 @@ from pathlib import Path
 
 
 def configure_logging(log_level: str = "INFO") -> None:
-    """Configure structured console and file logs."""
+    """Configure structured console and file logging for API and background workers.
+
+    Args:
+        log_level: Logging severity level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+    """
     Path("logs").mkdir(parents=True, exist_ok=True)
     dictConfig(
         {
@@ -34,4 +38,5 @@ def configure_logging(log_level: str = "INFO") -> None:
         }
     )
     logging.getLogger(__name__).info("Logging configured with level %s", log_level.upper())
+
 
