@@ -1,4 +1,6 @@
-"""Celery application factory."""
+"""Celery application factory and configuration."""
+
+from __future__ import annotations
 
 from celery import Celery
 
@@ -17,3 +19,4 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
 )
+
