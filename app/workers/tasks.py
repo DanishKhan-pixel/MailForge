@@ -22,6 +22,15 @@ email_service = EmailService()
 
 
 def _render_message(template: str, name: str | None) -> str:
+    """Render message template with recipient name placeholder.
+
+    Args:
+        template: Raw message template containing optional '{name}' tag.
+        name: Recipient name string or None.
+
+    Returns:
+        Rendered string with name injected or default fallback.
+    """
     safe_name = name or "there"
     return template.replace("{name}", safe_name)
 
@@ -33,7 +42,17 @@ def _render_message(template: str, name: str | None) -> str:
     retry_kwargs={"max_retries": 3},
 )
 def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None = None) -> dict[str, str]:
-    """Process pending recipients in a campaign and send emails one-by-one."""
+    """Process pending recipients in a campaign and send emails sequentially with throttling.
+
+    Args:
+        self: Active Celery task instance bound to context.
+        campaign_id: String representation of campaign UUID.
+        delay_seconds: Inter-email throttling delay in seconds.
+
+    Returns:
+        Dictionary indicating status result ('completed' or 'missing_campaign').
+    """
+
     throttle = delay_seconds or settings.send_delay_seconds
     db = SessionLocal()
     cid = uuid.UUID(campaign_id)
