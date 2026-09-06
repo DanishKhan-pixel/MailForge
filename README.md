@@ -102,4 +102,8 @@ The test suite covers:
 - **CSV Service**: Recipient CSV validation, formatting, and deduplication logic.
 - **Campaign Service**: Telemetry calculations and sending preconditions.
 - **Rate Limiting**: Sliding window request throttling and cache resets.
+- **Configuration & Logging**: Environment settings resolution and log handler setup.
+- **ORM Models**: Representation methods and status enumeration integrity.
+- **Workers & Email Services**: Template rendering and SMTP delivery logic.
+
 
