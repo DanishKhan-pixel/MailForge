@@ -9,36 +9,45 @@ from pydantic import BaseModel, Field
 
 
 class CampaignCreate(BaseModel):
-    subject: str = Field(..., min_length=1, max_length=200)
-    message: str = Field(..., min_length=1, max_length=10000)
+    """Payload for creating a new campaign."""
+
+    subject: str = Field(..., min_length=1, max_length=200, description="Email subject line")
+    message: str = Field(..., min_length=1, max_length=10000, description="Email message template text")
 
 
 class CampaignResponse(BaseModel):
-    id: UUID
-    subject: str
-    message: str
-    total_emails: int
-    sent_count: int
-    failed_count: int
-    status: str
-    created_at: datetime
+    """Response structure for campaign data."""
+
+    id: UUID = Field(..., description="Unique campaign identifier")
+    subject: str = Field(..., description="Email subject line")
+    message: str = Field(..., description="Email message template text")
+    total_emails: int = Field(..., description="Total count of recipients in campaign")
+    sent_count: int = Field(..., description="Count of successfully sent emails")
+    failed_count: int = Field(..., description="Count of failed email deliveries")
+    status: str = Field(..., description="Current status of campaign execution")
+    created_at: datetime = Field(..., description="Timestamp when campaign was created")
 
     model_config = {"from_attributes": True}
 
 
 class CampaignListResponse(BaseModel):
-    items: list[CampaignResponse]
-    page: int
-    page_size: int
-    total: int
+    """Paginated list response of campaigns."""
+
+    items: list[CampaignResponse] = Field(..., description="List of campaign records")
+    page: int = Field(..., description="Current page number")
+    page_size: int = Field(..., description="Page size limit")
+    total: int = Field(..., description="Total count of campaigns matching filter")
 
 
 class CampaignStatusResponse(BaseModel):
-    campaign_id: UUID
-    status: str
-    total_emails: int
-    sent_count: int
-    failed_count: int
-    pending_count: int
-    progress_percent: float
-    last_error: str | None = None
+    """Detailed progress telemetry response for a campaign."""
+
+    campaign_id: UUID = Field(..., description="Unique campaign identifier")
+    status: str = Field(..., description="Current campaign status")
+    total_emails: int = Field(..., description="Total count of recipients")
+    sent_count: int = Field(..., description="Count of sent emails")
+    failed_count: int = Field(..., description="Count of failed emails")
+    pending_count: int = Field(..., description="Count of pending emails remaining")
+    progress_percent: float = Field(..., description="Percentage of emails processed (0-100)")
+    last_error: str | None = Field(default=None, description="Most recent error message if any")
+
