@@ -14,10 +14,17 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, clas
 
 
 def get_db() -> Generator[Session, None, None]:
-    """FastAPI dependency yielding a database session."""
+    """FastAPI dependency yielding a managed SQLAlchemy database session.
+
+    Yields:
+        Session: Scoped database session.
+
+    Ensures session is closed safely upon request completion.
+    """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
