@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     celery_result_backend: str = Field("redis://localhost:6379/1", alias="CELERY_RESULT_BACKEND")
 
     smtp_host: str = Field("smtp.gmail.com", alias="SMTP_HOST")
-    smtp_port: int = Field(587, alias="SMTP_PORT")
+    smtp_port: int = Field(587, alias="SMTP_PORT", ge=1, le=65535)
     smtp_username: str = Field("", alias="SMTP_USERNAME")
     smtp_password: str = Field("", alias="SMTP_PASSWORD")
     smtp_from_email: str = Field("no-reply@example.com", alias="SMTP_FROM_EMAIL")

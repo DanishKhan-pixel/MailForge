@@ -21,3 +21,18 @@ def test_is_development_property() -> None:
 
     prod_settings = Settings(app_env="production")
     assert prod_settings.is_development is False
+
+
+def test_smtp_port_validation() -> None:
+    import pytest
+    from pydantic import ValidationError
+
+    valid_settings = Settings(SMTP_PORT=2525)
+    assert valid_settings.smtp_port == 2525
+
+    with pytest.raises(ValidationError):
+        Settings(SMTP_PORT=0)
+
+    with pytest.raises(ValidationError):
+        Settings(SMTP_PORT=70000)
+

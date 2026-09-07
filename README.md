@@ -105,5 +105,8 @@ The test suite covers:
 - **Configuration & Logging**: Environment settings resolution and log handler setup.
 - **ORM Models**: Representation methods and status enumeration integrity.
 - **Workers & Email Services**: Template rendering and SMTP delivery logic.
+- **Modular Package Exports**: Clean top-level package exports across `core`, `db`, `services`, `workers`, and `api`.
+- **Accessibility & Templates**: ARIA progress bar tags and HTML template rendering.
+
 
 
