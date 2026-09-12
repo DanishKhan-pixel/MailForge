@@ -8,6 +8,7 @@ import app.core
 import app.db
 import app.schemas
 import app.services
+import app.utils
 import app.workers
 
 
@@ -37,3 +38,9 @@ def test_workers_package_exports() -> None:
 def test_api_package_exports() -> None:
     assert hasattr(app.api, "campaigns_router")
     assert hasattr(app.api.v1, "campaigns_router")
+
+
+def test_utils_package_exports() -> None:
+    assert hasattr(app.utils, "mask_email")
+    assert hasattr(app.utils, "format_utc_timestamp")
+    assert hasattr(app.utils, "parse_iso_timestamp")
