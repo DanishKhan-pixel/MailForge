@@ -10,7 +10,9 @@ class Settings(BaseSettings):
     """Centralized runtime configuration."""
 
     app_name: str = "Email Automation System"
+    app_version: str = "2.0.0"
     app_env: str = "development"
+
     # Defaults allow local UI/API verification without full infra env setup.
     database_url: str = Field(
         "postgresql+psycopg://mailforge:mailforge@localhost:5432/mailforge",
@@ -34,6 +36,12 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         """Check if application is running in development mode."""
         return self.app_env.lower() in ("dev", "development")
+
+    @property
+    def is_production(self) -> bool:
+        """Check if application is running in production mode."""
+        return self.app_env.lower() in ("prod", "production")
+
 
 
 settings = Settings()
