@@ -16,9 +16,11 @@ from app.db.models import Campaign, CampaignStatus, EmailLog, Recipient, Recipie
 from app.db.session import SessionLocal
 from app.services.email_service import EmailService
 from app.workers.celery_app import celery_app
+from app.workers.constants import TASK_STATUS_COMPLETED, TASK_STATUS_MISSING_CAMPAIGN
 
 logger = logging.getLogger(__name__)
 email_service = EmailService()
+
 
 
 def _render_message(template: str, name: str | None) -> str:
@@ -60,7 +62,7 @@ def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None
         campaign = db.get(Campaign, cid)
         if not campaign:
             logger.error("Campaign missing: %s", campaign_id)
-            return {"status": "missing_campaign"}
+            return {"status": TASK_STATUS_MISSING_CAMPAIGN}
 
         pending_recipients = db.scalars(
             select(Recipient).where(Recipient.campaign_id == cid, Recipient.status == RecipientStatus.pending)
@@ -89,6 +91,7 @@ def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None
 
         campaign.status = CampaignStatus.completed
         db.commit()
-        return {"status": "completed"}
+        return {"status": TASK_STATUS_COMPLETED}
+
     finally:
         db.close()
