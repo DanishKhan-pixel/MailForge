@@ -24,17 +24,35 @@ templates = Jinja2Templates(directory="app/templates")
 
 @app.get("/", response_class=HTMLResponse, tags=["UI"])
 def index(request: Request) -> HTMLResponse:
-    """Serve the frontend dashboard."""
+    """Serve the frontend dashboard web user interface.
+
+    Args:
+        request: Incoming HTTP request context.
+
+    Returns:
+        Rendered Jinja2 HTML template response for dashboard index.
+    """
     return templates.TemplateResponse(request=request, name="index.html")
 
 
 @app.get("/health", tags=["Health"])
 def health_check() -> dict[str, str]:
-    """Health check endpoint used by orchestrators."""
+    """Provide system health status for monitoring orchestrators and load balancers.
+
+    Returns:
+        Dictionary payload containing service status indicator.
+    """
     return {"status": "ok"}
 
 
 @app.get("/dashboard", response_class=HTMLResponse, tags=["UI"])
 def dashboard(request: Request) -> HTMLResponse:
-    """Serve the frontend dashboard."""
+    """Serve the web dashboard user interface route alias.
+
+    Args:
+        request: Incoming HTTP request context.
+
+    Returns:
+        Rendered Jinja2 HTML template response for dashboard index.
+    """
     return templates.TemplateResponse(request=request, name="index.html")
