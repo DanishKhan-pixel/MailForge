@@ -168,3 +168,18 @@ def mark_campaign_running(db: Session, campaign: Campaign) -> None:
     campaign.status = CampaignStatus.running
     db.commit()
 
+
+def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipient]:
+    """Retrieve all recipient records associated with a campaign.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign_id: Target campaign UUID.
+
+    Returns:
+        List of Recipient objects belonging to the campaign.
+    """
+    query = select(Recipient).where(Recipient.campaign_id == campaign_id).order_by(Recipient.id.asc())
+    return list(db.scalars(query).all())
+
+
