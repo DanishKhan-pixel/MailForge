@@ -42,6 +42,12 @@ class Settings(BaseSettings):
         """Check if application is running in production mode."""
         return self.app_env.lower() in ("prod", "production")
 
+    @property
+    def max_retries_limit(self) -> int:
+        """Get the configured retry count limit."""
+        return self.retry_count
+
+
 
 
 settings = Settings()
