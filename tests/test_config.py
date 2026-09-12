@@ -8,6 +8,7 @@ from app.core.config import Settings
 def test_settings_default_values() -> None:
     settings = Settings()
     assert settings.app_name == "Email Automation System"
+    assert settings.app_version == "2.0.0"
     assert settings.send_delay_seconds >= 3
     assert settings.retry_count <= 3
 
@@ -21,6 +22,18 @@ def test_is_development_property() -> None:
 
     prod_settings = Settings(app_env="production")
     assert prod_settings.is_development is False
+
+
+def test_is_production_property() -> None:
+    prod_settings = Settings(app_env="production")
+    assert prod_settings.is_production is True
+
+    prod_short = Settings(app_env="prod")
+    assert prod_short.is_production is True
+
+    dev_settings = Settings(app_env="development")
+    assert dev_settings.is_production is False
+
 
 
 def test_smtp_port_validation() -> None:
