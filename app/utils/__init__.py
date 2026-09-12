@@ -2,4 +2,6 @@
 
 from __future__ import annotations
 
-__all__: list[str] = []
+from app.utils.formatters import mask_email
+
+__all__ = ["mask_email"]
