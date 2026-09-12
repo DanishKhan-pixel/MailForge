@@ -61,3 +61,17 @@ def test_ensure_can_send_valid() -> None:
     # Should not raise any exception
     ensure_can_send(campaign)
 
+
+def test_get_campaign_recipients_query() -> None:
+    from app.services.campaign_service import get_campaign_recipients
+
+    db = MagicMock()
+    cid = uuid.uuid4()
+    mock_recipient = MagicMock()
+    db.scalars.return_value.all.return_value = [mock_recipient]
+
+    result = get_campaign_recipients(db, cid)
+    assert len(result) == 1
+    assert result[0] == mock_recipient
+
+
