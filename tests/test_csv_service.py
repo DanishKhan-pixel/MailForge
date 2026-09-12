@@ -53,3 +53,15 @@ async def test_parse_recipients_csv_missing_email_header() -> None:
         await parse_recipients_csv(file)
     assert exc_info.value.status_code == 400
     assert "email" in exc_info.value.detail
+
+
+@pytest.mark.asyncio
+async def test_parse_recipients_csv_exceeds_max_limit() -> None:
+    lines = ["email,name"] + [f"user{i}@example.com,User{i}" for i in range(5001)]
+    content = "\n".join(lines).encode("utf-8")
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    with pytest.raises(HTTPException) as exc_info:
+        await parse_recipients_csv(file)
+    assert exc_info.value.status_code == 400
+    assert "exceeds maximum threshold" in exc_info.value.detail
+
