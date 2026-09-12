@@ -35,6 +35,12 @@ def test_is_production_property() -> None:
     assert dev_settings.is_production is False
 
 
+def test_max_retries_limit_property() -> None:
+    settings = Settings(RETRY_COUNT=2)
+    assert settings.max_retries_limit == 2
+
+
+
 
 def test_smtp_port_validation() -> None:
     import pytest
