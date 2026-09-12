@@ -107,6 +107,9 @@ The test suite covers:
 - **Workers & Email Services**: Template rendering and SMTP delivery logic.
 - **Modular Package Exports**: Clean top-level package exports across `core`, `db`, `services`, `workers`, and `api`.
 - **Accessibility & Templates**: ARIA progress bar tags and HTML template rendering.
+- **Formatting Utilities**: Privacy-preserving email masking (`mask_email`) functions.
+- **Schema Validation**: Granular Pydantic schema validation models (`RecipientItem`, `SendOptions`).
+
 
 
 
