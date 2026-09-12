@@ -24,3 +24,11 @@ class SendOptions(BaseModel):
 
     delay_seconds: int = Field(default=4, ge=3, le=5, description="Delay between email dispatches in seconds")
 
+
+class RecipientItem(BaseModel):
+    """Schema representing an individual email campaign recipient."""
+
+    email: str = Field(..., description="Recipient email address")
+    name: str | None = Field(default=None, description="Optional recipient display name")
+
+
