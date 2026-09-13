@@ -44,3 +44,5 @@ def test_utils_package_exports() -> None:
     assert hasattr(app.utils, "mask_email")
     assert hasattr(app.utils, "format_utc_timestamp")
     assert hasattr(app.utils, "parse_iso_timestamp")
+    assert hasattr(app.utils, "truncate_text")
+
