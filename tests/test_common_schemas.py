@@ -5,12 +5,20 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.common import MessageResponse, PaginationParams
+from app.schemas.common import HealthResponse, MessageResponse, PaginationParams
 
 
 def test_message_response_schema() -> None:
     resp = MessageResponse(message="Operation successful")
     assert resp.message == "Operation successful"
+
+
+def test_health_response_schema() -> None:
+    health = HealthResponse()
+    assert health.status == "ok"
+    custom_health = HealthResponse(status="degraded")
+    assert custom_health.status == "degraded"
+
 
 
 def test_pagination_params_defaults() -> None:
