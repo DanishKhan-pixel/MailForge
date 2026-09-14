@@ -28,6 +28,13 @@ def test_services_package_exports() -> None:
     assert hasattr(app.services, "create_campaign")
     assert hasattr(app.services, "parse_recipients_csv")
     assert hasattr(app.services, "EmailService")
+    assert hasattr(app.services, "get_campaign_recipients")
+
+
+def test_services_package_exports_campaign_helpers() -> None:
+    from app.services import get_campaign_recipients
+
+    assert callable(get_campaign_recipients)
 
 
 def test_workers_package_exports() -> None:
