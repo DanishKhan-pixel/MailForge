@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from app.workers.tasks import _render_message
+import smtplib
+
+from app.core.config import settings
+from app.workers.tasks import _render_message, send_campaign_emails
 
 
 def test_render_message_with_name() -> None:
@@ -21,3 +24,9 @@ def test_render_message_without_placeholder() -> None:
     template = "Welcome to MailForge!"
     rendered = _render_message(template, "Bob")
     assert rendered == "Welcome to MailForge!"
+
+
+def test_task_retry_configuration_uses_settings_limit() -> None:
+    assert send_campaign_emails.retry_kwargs["max_retries"] == settings.max_retries_limit
+    assert smtplib.SMTPException in send_campaign_emails.autoretry_for
+    assert send_campaign_emails.retry_backoff is True
