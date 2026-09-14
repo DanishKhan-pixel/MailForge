@@ -10,11 +10,13 @@ from datetime import datetime, timezone
 
 from celery import Task
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.models import Campaign, CampaignStatus, EmailLog, Recipient, RecipientStatus
 from app.db.session import SessionLocal
 from app.services.email_service import EmailService
+from app.utils import mask_email
 from app.workers.celery_app import celery_app
 from app.workers.constants import TASK_STATUS_COMPLETED, TASK_STATUS_MISSING_CAMPAIGN
 
@@ -34,6 +36,42 @@ def _render_message(template: str, name: str | None) -> str:
     """
     safe_name = name or "there"
     return template.replace("{name}", safe_name)
+
+
+def _dispatch_campaign_emails(
+    db: Session,
+    campaign: Campaign,
+    recipients: list[Recipient],
+    throttle: int,
+) -> None:
+    """Send emails to each recipient sequentially with throttling and masked logs.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign: Target Campaign object to update progress on.
+        recipients: Pending recipient records to dispatch to.
+        throttle: Inter-email throttling delay in seconds.
+    """
+    for recipient in recipients:
+        try:
+            body = _render_message(campaign.message, recipient.name)
+            email_service.send_email(recipient.email, campaign.subject, body)
+            recipient.status = RecipientStatus.sent
+            recipient.sent_at = datetime.now(timezone.utc)
+            recipient.error_message = None
+            campaign.sent_count += 1
+            db.add(EmailLog(recipient_id=recipient.id, status="sent", response="SMTP delivered"))
+            db.commit()
+            logger.info("Email sent campaign=%s recipient=%s", campaign.id, mask_email(recipient.email))
+        except Exception as exc:  # noqa: BLE001
+            recipient.status = RecipientStatus.failed
+            recipient.error_message = str(exc)
+            campaign.failed_count += 1
+            db.add(EmailLog(recipient_id=recipient.id, status="failed", response=str(exc)))
+            db.commit()
+            logger.exception("Email failed campaign=%s recipient=%s", campaign.id, mask_email(recipient.email))
+
+        time.sleep(throttle)
 
 
 @celery_app.task(
@@ -67,26 +105,7 @@ def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None
             select(Recipient).where(Recipient.campaign_id == cid, Recipient.status == RecipientStatus.pending)
         ).all()
 
-        for recipient in pending_recipients:
-            try:
-                body = _render_message(campaign.message, recipient.name)
-                email_service.send_email(recipient.email, campaign.subject, body)
-                recipient.status = RecipientStatus.sent
-                recipient.sent_at = datetime.now(timezone.utc)
-                recipient.error_message = None
-                campaign.sent_count += 1
-                db.add(EmailLog(recipient_id=recipient.id, status="sent", response="SMTP delivered"))
-                db.commit()
-                logger.info("Email sent campaign=%s recipient=%s", campaign.id, recipient.email)
-            except Exception as exc:  # noqa: BLE001
-                recipient.status = RecipientStatus.failed
-                recipient.error_message = str(exc)
-                campaign.failed_count += 1
-                db.add(EmailLog(recipient_id=recipient.id, status="failed", response=str(exc)))
-                db.commit()
-                logger.exception("Email failed campaign=%s recipient=%s", campaign.id, recipient.email)
-
-            time.sleep(throttle)
+        _dispatch_campaign_emails(db, campaign, pending_recipients, throttle)
 
         campaign.status = CampaignStatus.completed
         db.commit()
