@@ -32,3 +32,10 @@ class RecipientItem(BaseModel):
     name: str | None = Field(default=None, description="Optional recipient display name")
 
 
+class RecipientListResponse(BaseModel):
+    """List response of recipients belonging to a campaign."""
+
+    items: list[RecipientItem] = Field(..., description="List of recipient records")
+    total: int = Field(..., description="Total count of recipients")
+
+
