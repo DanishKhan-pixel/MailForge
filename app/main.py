@@ -9,12 +9,14 @@ from fastapi.templating import Jinja2Templates
 from app.api.v1.campaigns import router as campaigns_router
 from app.core.config import settings
 from app.core.logging import configure_logging
+from app.schemas.common import HealthResponse
+
 
 configure_logging()
 
 app = FastAPI(
     title=settings.app_name,
-    version="2.0.0",
+    version=settings.app_version,
     description="Campaign-based email automation with PostgreSQL and Celery workers.",
 )
 
@@ -35,14 +37,14 @@ def index(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request=request, name="index.html")
 
 
-@app.get("/health", tags=["Health"])
-def health_check() -> dict[str, str]:
+@app.get("/health", response_model=HealthResponse, tags=["Health"])
+def health_check() -> HealthResponse:
     """Provide system health status for monitoring orchestrators and load balancers.
 
     Returns:
-        Dictionary payload containing service status indicator.
+        HealthResponse object containing service status indicator.
     """
-    return {"status": "ok"}
+    return HealthResponse(status="ok")
 
 
 @app.get("/dashboard", response_class=HTMLResponse, tags=["UI"])
