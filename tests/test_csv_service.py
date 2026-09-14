@@ -65,3 +65,22 @@ async def test_parse_recipients_csv_exceeds_max_limit() -> None:
     assert exc_info.value.status_code == 400
     assert "exceeds maximum threshold" in exc_info.value.detail
 
+
+@pytest.mark.asyncio
+async def test_parse_recipients_csv_trims_surrounding_whitespace() -> None:
+    content = b"email,name\n  alice@example.com  ,  Alice  \n bob@example.com,Bob\n"
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    result = await parse_recipients_csv(file)
+    assert result[0] == {"email": "alice@example.com", "name": "Alice"}
+    assert result[1] == {"email": "bob@example.com", "name": "Bob"}
+
+
+@pytest.mark.asyncio
+async def test_parse_recipients_csv_deduplication_keeps_first_occurrence() -> None:
+    content = b"email,name\nuser@example.com,First\nUSER@example.com,Second\n"
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    result = await parse_recipients_csv(file)
+    assert len(result) == 1
+    assert result[0]["email"] == "user@example.com"
+    assert result[0]["name"] == "First"
+
