@@ -9,7 +9,13 @@ from app.schemas.campaign import (
     CampaignStatusResponse,
 )
 from app.schemas.common import HealthResponse, MessageResponse, PaginationParams
-from app.schemas.recipient import RecipientItem, SendOptions, SendTriggerResponse, UploadResponse
+from app.schemas.recipient import (
+    RecipientItem,
+    RecipientListResponse,
+    SendOptions,
+    SendTriggerResponse,
+    UploadResponse,
+)
 
 __all__ = [
     "CampaignCreate",
@@ -22,5 +28,6 @@ __all__ = [
     "MessageResponse",
     "PaginationParams",
     "RecipientItem",
+    "RecipientListResponse",
     "HealthResponse",
 ]
