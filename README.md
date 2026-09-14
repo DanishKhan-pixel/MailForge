@@ -10,6 +10,7 @@ Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLA
 - Async sending with Celery worker (non-blocking API)
 - Retry support and per-recipient status tracking
 - Email logs persisted in PostgreSQL and app logs stored in file
+- Recipient listing per campaign and privacy-masked email logging
 - Pagination and campaign status filtering
 - Basic API rate limiting and environment-driven configuration
 
@@ -110,6 +111,9 @@ The test suite covers:
 - **Formatting Utilities**: Privacy-preserving email masking (`mask_email`) and ISO 8601 UTC timestamp formatting.
 - **Schema Validation**: Granular Pydantic models (`RecipientItem`, `SendOptions`, `PaginationParams`).
 - **Worker Execution Status**: Task status constants (`TASK_STATUS_COMPLETED`, `TASK_STATUS_MISSING_CAMPAIGN`).
+- **Recipient APIs**: Campaign recipient listing endpoint with paginated response and 404 guarding.
+- **Worker Log Privacy**: Emails masked in worker logs via `mask_email`.
+- **CSV Deduplication**: Case-insensitive recipient deduplication keeping first occurrence.
 
 
 
