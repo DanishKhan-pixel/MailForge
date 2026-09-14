@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 email_service = EmailService()
 
 
-
 def _render_message(template: str, name: str | None) -> str:
     """Render message template with recipient name placeholder.
 
@@ -41,7 +40,7 @@ def _render_message(template: str, name: str | None) -> str:
     bind=True,
     autoretry_for=(ConnectionError, TimeoutError, smtplib.SMTPException),
     retry_backoff=True,
-    retry_kwargs={"max_retries": 3},
+    retry_kwargs={"max_retries": settings.max_retries_limit},
 )
 def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None = None) -> dict[str, str]:
     """Process pending recipients in a campaign and send emails sequentially with throttling.
