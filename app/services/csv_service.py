@@ -66,17 +66,12 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
             detail=f"CSV recipient count exceeds maximum threshold of {MAX_CSV_RECIPIENTS}.",
         )
 
-
-    # Deduplicate recipients: keep first occurrence, preserve order
-    unique_rows: dict[str, dict[str, str]] = {}
+    # Deduplicate recipients case-insensitively: keep first occurrence, preserve order
     seen_emails: set[str] = set()
     deduplicated_rows: list[dict[str, str]] = []
-    
     for row in rows:
-        email = row["email"].lower()
-        if email not in seen_emails:
-            unique_rows[email] = row
-            seen_emails.add(email)
+        if row["email"].lower() not in seen_emails:
+            seen_emails.add(row["email"].lower())
             deduplicated_rows.append(row)
 
     return deduplicated_rows
