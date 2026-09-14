@@ -16,12 +16,19 @@ from app.schemas.campaign import (
     CampaignResponse,
     CampaignStatusResponse,
 )
-from app.schemas.recipient import SendOptions, SendTriggerResponse, UploadResponse
+from app.schemas.recipient import (
+    RecipientItem,
+    RecipientListResponse,
+    SendOptions,
+    SendTriggerResponse,
+    UploadResponse,
+)
 from app.services.campaign_service import (
     campaign_status_payload,
     create_campaign,
     ensure_can_send,
     get_campaign_or_404,
+    get_campaign_recipients,
     latest_campaign_error,
     list_campaigns,
     mark_campaign_running,
@@ -116,5 +123,20 @@ def get_campaign_status(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -
     campaign = get_campaign_or_404(db, campaign_id)
     payload = campaign_status_payload(campaign, latest_campaign_error(db, campaign_id))
     return CampaignStatusResponse(**payload)
+
+
+@router.get(
+    "/{campaign_id}/recipients",
+    response_model=RecipientListResponse,
+    dependencies=[Depends(rate_limit(60, 60))],
+)
+def list_campaign_recipients(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -> RecipientListResponse:
+    """List all recipient records registered for a specific campaign."""
+    get_campaign_or_404(db, campaign_id)
+    recipients = get_campaign_recipients(db, campaign_id)
+    return RecipientListResponse(
+        items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in recipients],
+        total=len(recipients),
+    )
 
 
