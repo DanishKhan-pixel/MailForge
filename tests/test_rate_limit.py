@@ -51,3 +51,35 @@ def test_reset_rate_limits_clears_counter() -> None:
 
     # After reset, a request should be allowed again
     limiter(request)
+
+
+def test_rate_limit_buckets_isolated_across_configurations() -> None:
+    strict_limiter = rate_limit(max_requests=1, window_seconds=60)
+    generous_limiter = rate_limit(max_requests=3, window_seconds=60)
+    request = MagicMock(spec=Request)
+    request.client.host = "192.168.1.4"
+
+    strict_limiter(request)
+    # Exhausting the strict limiter must not affect the generous one
+    with pytest.raises(HTTPException) as exc_info:
+        strict_limiter(request)
+    assert exc_info.value.status_code == 429
+
+    generous_limiter(request)
+    generous_limiter(request)
+    generous_limiter(request)
+
+
+def test_rate_limit_buckets_isolated_from_other_ip() -> None:
+    limiter = rate_limit(max_requests=1, window_seconds=60)
+    first = MagicMock(spec=Request)
+    first.client.host = "192.168.1.5"
+    second = MagicMock(spec=Request)
+    second.client.host = "192.168.1.6"
+
+    limiter(first)
+    with pytest.raises(HTTPException):
+        limiter(first)
+
+    # A different client IP retains its own independent allowance
+    limiter(second)
