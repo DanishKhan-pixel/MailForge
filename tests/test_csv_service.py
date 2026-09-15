@@ -84,3 +84,24 @@ async def test_parse_recipients_csv_deduplication_keeps_first_occurrence() -> No
     assert result[0]["email"] == "user@example.com"
     assert result[0]["name"] == "First"
 
+
+@pytest.mark.asyncio
+async def test_parse_recipients_csv_truncates_long_name() -> None:
+    long_name = "N" * 300
+    content = f"email,name\nuser@example.com,{long_name}\n".encode("utf-8")
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    result = await parse_recipients_csv(file)
+    assert result[0]["name"] == "N" * 200
+
+
+@pytest.mark.asyncio
+async def test_parse_recipients_csv_rejects_overlong_email() -> None:
+    local_part = "u" * 350
+    email = f"{local_part}@example.com"
+    content = f"email,name\n{email},User\n".encode("utf-8")
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    with pytest.raises(HTTPException) as exc_info:
+        await parse_recipients_csv(file)
+    assert exc_info.value.status_code == 400
+    assert "Invalid emails" in exc_info.value.detail
+
