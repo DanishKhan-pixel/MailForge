@@ -53,6 +53,51 @@ def test_list_campaign_recipients_endpoint() -> None:
         {"email": "alice@example.com", "name": "Alice"},
         {"email": "bob@example.com", "name": "Bob"},
     ]
+    assert payload["page"] == 1
+    assert payload["page_size"] == 20
+
+
+def test_list_campaign_recipients_pagination() -> None:
+    cid = uuid.uuid4()
+    recipients = [
+        RecipientItem(email=f"user{i}@example.com", name=f"User{i}") for i in range(25)
+    ]
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalars.return_value.all.return_value = recipients
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients?page=2&page_size=10")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 25
+    assert payload["page"] == 2
+    assert payload["page_size"] == 10
+    assert len(payload["items"]) == 10
+    assert payload["items"][0]["email"] == "user10@example.com"
+
+
+def test_list_campaign_recipients_page_out_of_range() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalars.return_value.all.return_value = [
+        RecipientItem(email="user@example.com", name="User"),
+    ]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients?page=5&page_size=20")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 1
+    assert payload["items"] == []
+    assert payload["page"] == 5
 
 
 def test_list_campaign_recipients_missing_campaign_returns_404() -> None:
