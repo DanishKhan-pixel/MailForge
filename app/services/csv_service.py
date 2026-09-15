@@ -10,6 +10,8 @@ email_adapter = TypeAdapter(EmailStr)
 
 
 MAX_CSV_RECIPIENTS = 5000
+MAX_EMAIL_LENGTH = 320
+MAX_NAME_LENGTH = 200
 
 
 def _validate_email(raw_email: str) -> str:
@@ -42,13 +44,16 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
 
     for idx, row in enumerate(reader, start=2):
         email = (row.get("email") or "").strip()
-        name = (row.get("name") or "").strip()
+        name = (row.get("name") or "").strip()[:MAX_NAME_LENGTH]
         if not email:
             invalid_rows.append(idx)
             continue
         try:
             normalized_email = _validate_email(email)
         except ValueError:
+            invalid_rows.append(idx)
+            continue
+        if len(normalized_email) > MAX_EMAIL_LENGTH:
             invalid_rows.append(idx)
             continue
         rows.append({"email": normalized_email, "name": name})
