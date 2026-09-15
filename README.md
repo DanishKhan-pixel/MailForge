@@ -13,6 +13,9 @@ Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLA
 - Recipient listing per campaign and privacy-masked email logging
 - Pagination and campaign status filtering
 - Basic API rate limiting and environment-driven configuration
+- SMTP delivery with bounded retries and per-recipient privacy-masked logging
+- Recipient listing with pagination and validated campaign status filters
+- CSV sanitization including email size limits and name length truncation
 
 ## Architecture
 
@@ -110,6 +113,9 @@ The test suite covers:
 - **Accessibility & Templates**: ARIA progress bar tags and HTML template rendering.
 - **Formatting Utilities**: Privacy-preserving email masking (`mask_email`) and ISO 8601 UTC timestamp formatting.
 - **Schema Validation**: Granular Pydantic models (`RecipientItem`, `SendOptions`, `PaginationParams`).
+- **SMTP Retry**: Bounded retry on transient email failures with exponential backoff.
+- **Celery Configuration**: Broker, serialization, and timezone configuration verified.
+- **Rate Limiting**: Per-configuration bucket isolation preventing cross-endpoint contention.
 - **Worker Execution Status**: Task status constants (`TASK_STATUS_COMPLETED`, `TASK_STATUS_MISSING_CAMPAIGN`).
 - **Recipient APIs**: Campaign recipient listing endpoint with paginated response and 404 guarding.
 - **Worker Log Privacy**: Emails masked in worker logs via `mask_email`.
