@@ -6,7 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.services.email_service import AsyncEmailService, EmailService
+from app.core.config import settings
+from app.services.email_service import AsyncEmailService, EmailService, _build_message
 
 
 @patch("smtplib.SMTP")
@@ -34,3 +35,12 @@ async def test_send_email_async(mock_smtp_cls: MagicMock) -> None:
     mock_smtp_instance.starttls.assert_called_once()
     mock_smtp_instance.login.assert_called_once()
     mock_smtp_instance.send_message.assert_called_once()
+
+
+def test_build_message_composition() -> None:
+    message = _build_message(recipient="user@example.com", subject="Subject", body="Body")
+
+    assert message["From"] == settings.smtp_from_email
+    assert message["To"] == "user@example.com"
+    assert message["Subject"] == "Subject"
+    assert message.get_content().strip() == "Body"
