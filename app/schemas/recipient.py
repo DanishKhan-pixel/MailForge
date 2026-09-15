@@ -33,9 +33,11 @@ class RecipientItem(BaseModel):
 
 
 class RecipientListResponse(BaseModel):
-    """List response of recipients belonging to a campaign."""
+    """Paginated list response of recipients belonging to a campaign."""
 
     items: list[RecipientItem] = Field(..., description="List of recipient records")
+    page: int = Field(..., description="Current page number")
+    page_size: int = Field(..., description="Page size limit")
     total: int = Field(..., description="Total count of recipients")
 
 
