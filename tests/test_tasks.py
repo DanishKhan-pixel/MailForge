@@ -63,3 +63,16 @@ def test_dispatch_campaign_emails_logs_masked_emails(caplog, monkeypatch) -> Non
     assert mask_email("alice@example.com") in caplog.text
     assert recipient.status == RecipientStatus.sent
     assert campaign.sent_count == 1
+
+
+def test_send_campaign_emails_missing_campaign(monkeypatch) -> None:
+    from app.workers import tasks
+
+    mock_db = MagicMock()
+    mock_db.get.return_value = None
+    monkeypatch.setattr(tasks, "SessionLocal", lambda: mock_db)
+
+    result = tasks.send_campaign_emails.run(str(uuid.uuid4()), delay_seconds=0)
+
+    assert result == {"status": "missing_campaign"}
+    mock_db.close.assert_called_once()
