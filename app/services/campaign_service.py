@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.models import Campaign, CampaignStatus, Recipient, RecipientStatus
+from app.utils import truncate_text
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +140,7 @@ def campaign_status_payload(campaign: Campaign, last_error: str | None = None) -
         "failed_count": campaign.failed_count,
         "pending_count": pending_count,
         "progress_percent": progress_percent,
-        "last_error": last_error,
+        "last_error": truncate_text(last_error, max_length=500) if last_error else None,
     }
 
 
