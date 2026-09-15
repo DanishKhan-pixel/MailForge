@@ -75,3 +75,17 @@ def test_get_campaign_recipients_query() -> None:
     assert result[0] == mock_recipient
 
 
+def test_campaign_status_payload_truncates_long_last_error() -> None:
+    long_error = "E" * 1000
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.status = CampaignStatus.completed
+    campaign.total_emails = 10
+    campaign.sent_count = 10
+    campaign.failed_count = 0
+
+    payload = campaign_status_payload(campaign, last_error=long_error)
+    assert len(payload["last_error"]) == 500
+    assert payload["last_error"].endswith("...")
+
+
