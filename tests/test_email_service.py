@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import smtplib
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -44,3 +45,42 @@ def test_build_message_composition() -> None:
     assert message["To"] == "user@example.com"
     assert message["Subject"] == "Subject"
     assert message.get_content().strip() == "Body"
+
+
+def test_send_email_retries_on_transient_smtp_failure(monkeypatch) -> None:
+    from app.services import email_service
+
+    attempts = {"count": 0}
+
+    def _fake_smtp(*args, **kwargs):
+        attempts["count"] += 1
+        inst = MagicMock()
+        if attempts["count"] <= 1:
+            inst.__enter__.side_effect = smtplib.SMTPException("temporary")
+        else:
+            inst.__enter__.return_value = inst
+        return inst
+
+    monkeypatch.setattr(email_service.time, "sleep", lambda *_a: None)
+    with patch("smtplib.SMTP", side_effect=_fake_smtp):
+        with patch.object(email_service.settings, "retry_count", 1):
+            service = EmailService()
+            service.send_email(recipient="user@example.com", subject="S", body="B")
+
+    assert attempts["count"] == 2
+
+
+def test_send_email_exhausts_retries_on_persistent_failure() -> None:
+    from app.services import email_service
+
+    def _always_fail(*args, **kwargs):
+        inst = MagicMock()
+        inst.__enter__.side_effect = smtplib.SMTPException("down")
+        return inst
+
+    with patch("smtplib.SMTP", side_effect=_always_fail):
+        with patch.object(email_service.settings, "retry_count", 1):
+            with patch.object(email_service.time, "sleep", lambda *_a: None):
+                service = EmailService()
+                with pytest.raises(smtplib.SMTPException, match="down"):
+                    service.send_email(recipient="user@example.com", subject="S", body="B")
