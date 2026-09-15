@@ -76,3 +76,37 @@ def test_send_campaign_emails_missing_campaign(monkeypatch) -> None:
 
     assert result == {"status": "missing_campaign"}
     mock_db.close.assert_called_once()
+
+
+def test_send_campaign_emails_completed_flow(monkeypatch) -> None:
+    from app.db.models import Campaign, RecipientStatus
+    from app.workers import tasks
+
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.subject = "Hello"
+    campaign.message = "Hi {name}"
+    campaign.sent_count = 0
+    campaign.failed_count = 0
+
+    recipient = MagicMock()
+    recipient.id = 1
+    recipient.email = "bob@example.com"
+    recipient.name = "Bob"
+    recipient.status = RecipientStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    db.scalars.return_value.all.return_value = [recipient]
+    monkeypatch.setattr(tasks, "SessionLocal", lambda: db)
+    monkeypatch.setattr(tasks.email_service, "send_email", lambda *a, **k: None)
+    monkeypatch.setattr(tasks.time, "sleep", lambda *a, **k: None)
+
+    result = tasks.send_campaign_emails.run(str(campaign.id), delay_seconds=0)
+
+    assert result == {"status": "completed"}
+    assert recipient.status == RecipientStatus.sent
+    assert campaign.sent_count == 1
+    assert campaign.status.value == "completed"
+    assert db.commit.call_count >= 2
+    db.close.assert_called_once()
