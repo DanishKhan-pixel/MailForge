@@ -9,6 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.rate_limit import rate_limit
+from app.db.models import CampaignStatus
 from app.db.session import get_db
 from app.schemas.campaign import (
     CampaignCreate,
@@ -93,11 +94,12 @@ def send_campaign(
 def list_campaigns_endpoint(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    status: str | None = Query(None),
+    status: CampaignStatus | None = Query(None),
     db: Session = Depends(get_db),
 ) -> CampaignListResponse:
     """List all created email campaigns with status filtering and pagination support."""
-    items, total = list_campaigns(db, page, page_size, status)
+    status_filter = status.value if status else None
+    items, total = list_campaigns(db, page, page_size, status_filter)
     return CampaignListResponse(
         items=[CampaignResponse.model_validate(item) for item in items],
         page=page,
