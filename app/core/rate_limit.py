@@ -16,6 +16,9 @@ _lock = Lock()
 def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], None]:
     """Factory creating a FastAPI dependency for client IP rate limiting.
 
+    Each unique (limit, window) configuration gets its own independent bucket so
+    different endpoints do not share or exhaust each other's allowance.
+
     Args:
         max_requests: Maximum allowed requests within the sliding window.
         window_seconds: Time window duration in seconds.
@@ -28,7 +31,8 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], No
     """
 
     def dependency(request: Request) -> None:
-        key = request.client.host if request.client else "unknown"
+        ip = request.client.host if request.client else "unknown"
+        key = f"{ip}:{max_requests}:{window_seconds}"
         now = time.time()
         with _lock:
             queue = _requests[key]
