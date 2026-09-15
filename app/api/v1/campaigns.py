@@ -132,12 +132,21 @@ def get_campaign_status(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -
     response_model=RecipientListResponse,
     dependencies=[Depends(rate_limit(60, 60))],
 )
-def list_campaign_recipients(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -> RecipientListResponse:
-    """List all recipient records registered for a specific campaign."""
+def list_campaign_recipients(
+    campaign_id: uuid.UUID,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+) -> RecipientListResponse:
+    """List paginated recipient records registered for a specific campaign."""
     get_campaign_or_404(db, campaign_id)
     recipients = get_campaign_recipients(db, campaign_id)
+    offset = (page - 1) * page_size
+    page_items = recipients[offset : offset + page_size]
     return RecipientListResponse(
-        items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in recipients],
+        items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in page_items],
+        page=page,
+        page_size=page_size,
         total=len(recipients),
     )
 
