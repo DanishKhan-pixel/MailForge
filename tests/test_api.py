@@ -66,3 +66,28 @@ def test_list_campaign_recipients_missing_campaign_returns_404() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 404
+
+
+def test_list_campaigns_accepts_valid_status_filter() -> None:
+    db = MagicMock()
+    db.scalars.return_value.all.return_value = []
+    db.scalar.return_value = 0
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get("/campaigns?status=pending")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json()["items"] == []
+
+
+def test_list_campaigns_rejects_invalid_status_filter() -> None:
+    db = MagicMock()
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get("/campaigns?status=bogus")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 422
