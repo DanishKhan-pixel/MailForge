@@ -120,6 +120,10 @@ The test suite covers:
 - **Recipient APIs**: Campaign recipient listing endpoint with paginated response and 404 guarding.
 - **Worker Log Privacy**: Emails masked in worker logs via `mask_email`.
 - **CSV Deduplication**: Case-insensitive recipient deduplication keeping first occurrence.
+- **Batch Processing Utilities**: List partitioning (`chunk_list`) for memory-efficient bulk processing.
+- **Query Filter Schemas**: Validated query parameter filters (`CampaignQueryFilter`) for campaign listing.
+- **OpenAPI Metadata**: Categorized tags metadata (`Campaigns`, `Health`, `UI`) for Swagger UI documentation.
+
 
 
 
