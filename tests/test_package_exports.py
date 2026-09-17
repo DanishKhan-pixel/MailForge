@@ -53,3 +53,8 @@ def test_utils_package_exports() -> None:
     assert hasattr(app.utils, "parse_iso_timestamp")
     assert hasattr(app.utils, "truncate_text")
 
+
+def test_schemas_package_exports_campaign_filter() -> None:
+    assert hasattr(app.schemas, "CampaignQueryFilter")
+
+
