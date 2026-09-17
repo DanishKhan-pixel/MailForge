@@ -22,3 +22,10 @@ class HealthResponse(BaseModel):
     """System health status response schema."""
 
     status: str = Field(default="ok", description="Service health indicator")
+
+
+class ErrorDetail(BaseModel):
+    """Detailed API error message model."""
+
+    detail: str = Field(..., description="Error message details describing the failure")
+    code: str | None = Field(default=None, description="Optional error code indicator")
