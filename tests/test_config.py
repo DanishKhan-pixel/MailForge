@@ -40,6 +40,12 @@ def test_max_retries_limit_property() -> None:
     assert settings.max_retries_limit == 2
 
 
+def test_app_description_property() -> None:
+    settings = Settings()
+    assert "email automation" in settings.app_description.lower()
+
+
+
 
 
 def test_smtp_port_validation() -> None:
