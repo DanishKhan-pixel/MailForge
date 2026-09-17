@@ -53,6 +53,7 @@ def test_utils_package_exports() -> None:
     assert hasattr(app.utils, "parse_iso_timestamp")
     assert hasattr(app.utils, "truncate_text")
     assert hasattr(app.utils, "chunk_list")
+    assert hasattr(app.utils, "extract_email_domain")
 
 
 
