@@ -45,6 +45,14 @@ def test_app_description_property() -> None:
     assert "email automation" in settings.app_description.lower()
 
 
+def test_is_debug_property() -> None:
+    dev_settings = Settings(app_env="development")
+    assert dev_settings.is_debug is True
+
+    prod_settings = Settings(app_env="production")
+    assert prod_settings.is_debug is False
+
+
 
 
 
