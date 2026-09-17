@@ -51,3 +51,12 @@ class CampaignStatusResponse(BaseModel):
     progress_percent: float = Field(..., description="Percentage of emails processed (0-100)")
     last_error: str | None = Field(default=None, description="Most recent error message if any")
 
+
+class CampaignQueryFilter(BaseModel):
+    """Query parameter filter for listing campaigns."""
+
+    page: int = Field(default=1, ge=1, description="1-indexed page number")
+    page_size: int = Field(default=10, ge=1, le=100, description="Page size limit")
+    status: str | None = Field(default=None, description="Optional campaign status filter")
+
+
