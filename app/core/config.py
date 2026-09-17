@@ -47,6 +47,12 @@ class Settings(BaseSettings):
         """Get the configured retry count limit."""
         return self.retry_count
 
+    @property
+    def app_description(self) -> str:
+        """Get descriptive documentation overview of the application."""
+        return "Campaign-based email automation with PostgreSQL and Celery workers."
+
+
 
 
 
