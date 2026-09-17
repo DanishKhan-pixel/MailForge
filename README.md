@@ -123,6 +123,9 @@ The test suite covers:
 - **Batch Processing Utilities**: List partitioning (`chunk_list`) for memory-efficient bulk processing.
 - **Query Filter Schemas**: Validated query parameter filters (`CampaignQueryFilter`) for campaign listing.
 - **OpenAPI Metadata**: Categorized tags metadata (`Campaigns`, `Health`, `UI`) for Swagger UI documentation.
+- **Email Payload Schemas**: Validated payload schemas (`EmailPayload`) for individual email sending requests.
+- **Domain Utilities**: Email domain extraction (`extract_email_domain`) for routing and analytics.
+- **Error Response Schemas**: Standardized error detail schemas (`ErrorDetail`) for consistent API error responses.
 
 
 
