@@ -14,11 +14,19 @@ from app.schemas.common import HealthResponse
 
 configure_logging()
 
+openapi_tags = [
+    {"name": "Campaigns", "description": "Operations for managing and triggering email campaigns."},
+    {"name": "Health", "description": "System health and status endpoints."},
+    {"name": "UI", "description": "Web frontend user interface dashboard pages."},
+]
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description="Campaign-based email automation with PostgreSQL and Celery workers.",
+    openapi_tags=openapi_tags,
 )
+
 
 app.include_router(campaigns_router)
 templates = Jinja2Templates(directory="app/templates")
