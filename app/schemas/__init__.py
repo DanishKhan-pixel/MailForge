@@ -5,6 +5,7 @@ from __future__ import annotations
 from app.schemas.campaign import (
     CampaignCreate,
     CampaignListResponse,
+    CampaignQueryFilter,
     CampaignResponse,
     CampaignStatusResponse,
 )
@@ -22,6 +23,7 @@ __all__ = [
     "CampaignResponse",
     "CampaignListResponse",
     "CampaignStatusResponse",
+    "CampaignQueryFilter",
     "SendOptions",
     "SendTriggerResponse",
     "UploadResponse",
