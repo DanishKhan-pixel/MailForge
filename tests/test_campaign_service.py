@@ -89,3 +89,13 @@ def test_campaign_status_payload_truncates_long_last_error() -> None:
     assert payload["last_error"].endswith("...")
 
 
+def test_is_valid_campaign_id_validation() -> None:
+    from app.services.campaign_service import is_valid_campaign_id
+
+    valid_uuid_str = str(uuid.uuid4())
+    assert is_valid_campaign_id(valid_uuid_str) is True
+    assert is_valid_campaign_id("not-a-uuid") is False
+    assert is_valid_campaign_id("") is False
+
+
+
