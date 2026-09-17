@@ -200,4 +200,17 @@ def is_valid_campaign_id(val: str) -> bool:
         return False
 
 
+def format_campaign_summary(campaign: Campaign) -> str:
+    """Format a human-readable summary string for a campaign.
+
+    Args:
+        campaign: Target Campaign object.
+
+    Returns:
+        Formatted summary string describing subject and status.
+    """
+    status_str = campaign.status.value if isinstance(campaign.status, CampaignStatus) else str(campaign.status)
+    return f"Campaign '{campaign.subject}' [{status_str}] - Total: {campaign.total_emails}, Sent: {campaign.sent_count}, Failed: {campaign.failed_count}"
+
+
 
