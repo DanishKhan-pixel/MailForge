@@ -184,3 +184,20 @@ def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipie
     return list(db.scalars(query).all())
 
 
+def is_valid_campaign_id(val: str) -> bool:
+    """Validate whether a string is a valid UUID representation.
+
+    Args:
+        val: Input string to validate.
+
+    Returns:
+        True if valid UUID, False otherwise.
+    """
+    try:
+        uuid.UUID(val)
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
+
