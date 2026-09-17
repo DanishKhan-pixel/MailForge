@@ -41,3 +41,12 @@ class RecipientListResponse(BaseModel):
     total: int = Field(..., description="Total count of recipients")
 
 
+class EmailPayload(BaseModel):
+    """Payload representing an individual outbound email dispatch."""
+
+    recipient: str = Field(..., description="Target recipient email address")
+    subject: str = Field(..., min_length=1, max_length=200, description="Email subject line")
+    body: str = Field(..., min_length=1, max_length=10000, description="Email body message text")
+
+
+
