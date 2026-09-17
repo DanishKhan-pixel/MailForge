@@ -98,4 +98,20 @@ def test_is_valid_campaign_id_validation() -> None:
     assert is_valid_campaign_id("") is False
 
 
+def test_format_campaign_summary() -> None:
+    from app.services.campaign_service import format_campaign_summary
+
+    campaign = MagicMock(spec=Campaign)
+    campaign.subject = "March Newsletter"
+    campaign.status = CampaignStatus.pending
+    campaign.total_emails = 50
+    campaign.sent_count = 10
+    campaign.failed_count = 2
+
+    summary = format_campaign_summary(campaign)
+    assert "March Newsletter" in summary
+    assert "[pending]" in summary
+    assert "Total: 50" in summary
+
+
 
