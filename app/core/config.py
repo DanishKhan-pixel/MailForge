@@ -52,6 +52,11 @@ class Settings(BaseSettings):
         """Get descriptive documentation overview of the application."""
         return "Campaign-based email automation with PostgreSQL and Celery workers."
 
+    @property
+    def is_debug(self) -> bool:
+        """Check if application operates in debug mode (alias for development mode)."""
+        return self.is_development
+
 
 
 
