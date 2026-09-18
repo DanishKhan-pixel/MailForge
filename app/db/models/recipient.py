@@ -6,7 +6,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, String, Text, column, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,6 +23,9 @@ class Recipient(Base):
     """Stores recipients belonging to a campaign."""
 
     __tablename__ = "recipients"
+    __table_args__ = (
+        Index("uq_recipients_campaign_email", "campaign_id", func.lower(column("email")), unique=True),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     campaign_id: Mapped[uuid.UUID] = mapped_column(
