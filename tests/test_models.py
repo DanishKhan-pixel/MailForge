@@ -35,3 +35,10 @@ def test_email_log_model_repr() -> None:
     repr_str = repr(log)
     assert "id=10" in repr_str
     assert "status='sent'" in repr_str
+
+
+def test_recipient_has_case_insensitive_unique_index() -> None:
+    index_names = {index.name for index in Recipient.__table__.indexes}
+    assert "uq_recipients_campaign_email" in index_names
+    unique_index = next(index for index in Recipient.__table__.indexes if index.name == "uq_recipients_campaign_email")
+    assert unique_index.unique is True
