@@ -26,9 +26,13 @@ class Settings(BaseSettings):
     smtp_username: str = Field("", alias="SMTP_USERNAME")
     smtp_password: str = Field("", alias="SMTP_PASSWORD")
     smtp_from_email: str = Field("no-reply@example.com", alias="SMTP_FROM_EMAIL")
+    smtp_timeout: int = Field(30, alias="SMTP_TIMEOUT", ge=1, le=120)
 
     send_delay_seconds: int = Field(4, alias="SEND_DELAY_SECONDS", ge=3, le=5)
     retry_count: int = Field(3, alias="RETRY_COUNT", ge=0, le=3)
+
+    log_dir: str = Field("logs", alias="LOG_DIR")
+    log_file_name: str = Field("email_automation.log", alias="LOG_FILE_NAME")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

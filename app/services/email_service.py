@@ -47,7 +47,7 @@ def _send_with_retry(message: EmailMessage) -> None:
     last_error: Exception | None = None
     for attempt in range(settings.retry_count + 1):
         try:
-            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as server:
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=settings.smtp_timeout) as server:
                 server.starttls()
                 server.login(settings.smtp_username, settings.smtp_password)
                 server.send_message(message)

@@ -6,6 +6,8 @@ import logging
 from logging.config import dictConfig
 from pathlib import Path
 
+from app.core.config import settings
+
 
 def configure_logging(log_level: str = "INFO") -> None:
     """Configure structured console and file logging for API and background workers.
@@ -13,7 +15,9 @@ def configure_logging(log_level: str = "INFO") -> None:
     Args:
         log_level: Logging severity level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
     """
-    Path("logs").mkdir(parents=True, exist_ok=True)
+    log_dir = Path(settings.log_dir)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file_path = log_dir / settings.log_file_name
     dictConfig(
         {
             "version": 1,
@@ -30,7 +34,7 @@ def configure_logging(log_level: str = "INFO") -> None:
                 },
                 "file": {
                     "class": "logging.FileHandler",
-                    "filename": "logs/email_automation.log",
+                    "filename": str(log_file_path),
                     "formatter": "standard",
                 },
             },
