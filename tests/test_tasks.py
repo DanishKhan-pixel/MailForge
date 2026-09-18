@@ -78,6 +78,19 @@ def test_send_campaign_emails_missing_campaign(monkeypatch) -> None:
     mock_db.close.assert_called_once()
 
 
+def test_send_campaign_emails_invalid_campaign_id(monkeypatch) -> None:
+    from app.workers import tasks
+
+    mock_db = MagicMock()
+    monkeypatch.setattr(tasks, "SessionLocal", lambda: mock_db)
+
+    result = tasks.send_campaign_emails.run("not-a-uuid", delay_seconds=0)
+
+    assert result == {"status": "failed"}
+    assert mock_db.get.call_count == 0
+    mock_db.close.assert_called_once()
+
+
 def test_send_campaign_emails_completed_flow(monkeypatch) -> None:
     from app.db.models import Campaign, RecipientStatus
     from app.workers import tasks
