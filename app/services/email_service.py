@@ -8,12 +8,16 @@ import time
 from email.message import EmailMessage
 
 from app.core.config import settings
+from app.utils import sanitize_subject
 
 logger = logging.getLogger(__name__)
 
 
 def _build_message(recipient: str, subject: str, body: str) -> EmailMessage:
     """Construct a plaintext email message with the configured sender.
+
+    The subject is sanitized to strip line breaks, preventing SMTP header
+    injection via crafted campaign subject lines.
 
     Args:
         recipient: Target recipient email address.
@@ -26,7 +30,7 @@ def _build_message(recipient: str, subject: str, body: str) -> EmailMessage:
     message = EmailMessage()
     message["From"] = settings.smtp_from_email
     message["To"] = recipient
-    message["Subject"] = subject
+    message["Subject"] = sanitize_subject(subject)
     message.set_content(body)
     return message
 
