@@ -116,6 +116,40 @@ def test_aggregate_campaign_stats_handles_empty_database() -> None:
     assert stats == {"total_campaigns": 0, "total_emails_sent": 0, "total_emails_failed": 0}
 
 
+def test_upload_recipients_inserts_rows_in_chunks_and_updates_total() -> None:
+    from app.services.campaign_service import RECIPIENT_UPLOAD_CHUNK_SIZE, upload_recipients
+
+    rows = [{"email": f"user{i}@example.com", "name": f"User{i}"} for i in range(RECIPIENT_UPLOAD_CHUNK_SIZE + 10)]
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.total_emails = 0
+    db = MagicMock()
+
+    count = upload_recipients(db, campaign, rows)
+
+    assert count == len(rows)
+    assert campaign.total_emails == 0 + len(rows)
+    assert db.add_all.call_count == 2
+    assert db.flush.call_count == 2
+    db.commit.assert_called_once()
+
+
+def test_upload_recipients_single_chunk_for_small_batch() -> None:
+    from app.services.campaign_service import upload_recipients
+
+    rows = [{"email": "a@example.com", "name": "A"}, {"email": "b@example.com", "name": None}]
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.total_emails = 0
+    db = MagicMock()
+
+    count = upload_recipients(db, campaign, rows)
+
+    assert count == 2
+    assert db.add_all.call_count == 1
+    assert db.flush.call_count == 1
+
+
 def test_campaign_status_payload_truncates_long_last_error() -> None:
     long_error = "E" * 1000
     campaign = MagicMock(spec=Campaign)
