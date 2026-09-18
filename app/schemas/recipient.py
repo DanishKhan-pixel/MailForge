@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class SendTriggerResponse(BaseModel):
@@ -28,7 +28,7 @@ class SendOptions(BaseModel):
 class RecipientItem(BaseModel):
     """Schema representing an individual email campaign recipient."""
 
-    email: str = Field(..., description="Recipient email address")
+    email: EmailStr = Field(..., description="Recipient email address")
     name: str | None = Field(default=None, description="Optional recipient display name")
 
 
@@ -44,7 +44,7 @@ class RecipientListResponse(BaseModel):
 class EmailPayload(BaseModel):
     """Payload representing an individual outbound email dispatch."""
 
-    recipient: str = Field(..., description="Target recipient email address")
+    recipient: EmailStr = Field(..., description="Target recipient email address")
     subject: str = Field(..., min_length=1, max_length=200, description="Email subject line")
     body: str = Field(..., min_length=1, max_length=10000, description="Email body message text")
 
