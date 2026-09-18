@@ -32,6 +32,19 @@ def test_dashboard_endpoint() -> None:
     assert "text/html" in response.headers["content-type"]
 
 
+def test_campaign_stats_endpoint() -> None:
+    db = MagicMock()
+    db.scalar.side_effect = [4, 320, 12]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get("/campaigns/stats")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {"total_campaigns": 4, "total_emails_sent": 320, "total_emails_failed": 12}
+
+
 def test_list_campaign_recipients_endpoint() -> None:
     cid = uuid.uuid4()
     db = MagicMock()

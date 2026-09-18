@@ -92,6 +92,30 @@ def test_paginate_campaign_recipients_applies_db_pagination() -> None:
     assert "OFFSET" in compiled or "LIMIT" in compiled
 
 
+def test_aggregate_campaign_stats_sums_delivery_totals() -> None:
+    from app.services.campaign_service import aggregate_campaign_stats
+
+    db = MagicMock()
+    db.scalar.side_effect = [3, 150, 5]
+
+    stats = aggregate_campaign_stats(db)
+
+    assert stats["total_campaigns"] == 3
+    assert stats["total_emails_sent"] == 150
+    assert stats["total_emails_failed"] == 5
+
+
+def test_aggregate_campaign_stats_handles_empty_database() -> None:
+    from app.services.campaign_service import aggregate_campaign_stats
+
+    db = MagicMock()
+    db.scalar.return_value = None
+
+    stats = aggregate_campaign_stats(db)
+
+    assert stats == {"total_campaigns": 0, "total_emails_sent": 0, "total_emails_failed": 0}
+
+
 def test_campaign_status_payload_truncates_long_last_error() -> None:
     long_error = "E" * 1000
     campaign = MagicMock(spec=Campaign)
