@@ -83,3 +83,37 @@ def test_rate_limit_buckets_isolated_from_other_ip() -> None:
 
     # A different client IP retains its own independent allowance
     limiter(second)
+
+
+def test_rate_limit_evicts_oldest_buckets_over_capacity(monkeypatch) -> None:
+    import importlib
+
+    rate_limit_module = importlib.import_module("app.core.rate_limit")
+
+    monkeypatch.setattr(rate_limit_module, "MAX_RATE_LIMIT_BUCKETS", 5)
+    limiter = rate_limit(max_requests=1, window_seconds=60)
+
+    for i in range(20):
+        request = MagicMock(spec=Request)
+        request.client.host = f"10.0.0.{i}"
+        limiter(request)
+
+    assert len(rate_limit_module._requests) <= 5
+    # The oldest active bucket should have been evicted
+    assert "10.0.0.0:1:60" not in rate_limit_module._requests
+
+
+def test_rate_limit_sweeps_expired_buckets_on_overflow(monkeypatch) -> None:
+    import importlib
+
+    rate_limit_module = importlib.import_module("app.core.rate_limit")
+
+    monkeypatch.setattr(rate_limit_module, "MAX_RATE_LIMIT_BUCKETS", 4)
+    limiter = rate_limit(max_requests=1, window_seconds=60)
+
+    for i in range(5):
+        request = MagicMock(spec=Request)
+        request.client.host = f"172.16.0.{i}"
+        limiter(request)
+
+    assert len(rate_limit_module._requests) <= 4
