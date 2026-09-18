@@ -16,6 +16,13 @@ Scalable campaign-based email automation backend using FastAPI, PostgreSQL, SQLA
 - SMTP delivery with bounded retries and per-recipient privacy-masked logging
 - Recipient listing with pagination and validated campaign status filters
 - CSV sanitization including email size limits and name length truncation
+- Campaign aggregate statistics endpoint exposing global delivery totals
+- Email subject sanitization preventing SMTP header injection
+- Pydantic email validation for recipient and payload schemas
+- Bounded-memory rate limiting with stale bucket eviction
+- Configurable SMTP timeout and application log directory
+- Case-insensitive unique recipient constraint enforced at database level
+- Chunked recipient bulk insertion for memory-efficient large uploads
 
 ## Architecture
 
@@ -126,6 +133,13 @@ The test suite covers:
 - **Email Payload Schemas**: Validated payload schemas (`EmailPayload`) for individual email sending requests.
 - **Domain Utilities**: Email domain extraction (`extract_email_domain`) for routing and analytics.
 - **Error Response Schemas**: Standardized error detail schemas (`ErrorDetail`) for consistent API error responses.
+- **Header Injection Protection**: Email subject lines sanitized against line-break injection.
+- **Email Schema Validation**: `RecipientItem` and `EmailPayload` validated with `EmailStr`.
+- **Campaign Stats**: Aggregate totals endpoint exposing campaign, sent, and failed counts.
+- **Rate Limiter Bounding**: Sliding-window buckets swept and evicted to cap memory use.
+- **Chunked Recipient Upload**: Recipient rows bulk-inserted in bounded chunks.
+- **Configurable SMTP & Logging**: SMTP timeout, log directory, and log file name via settings.
+- **Database Uniqueness**: Case-insensitive unique index on campaign recipient emails.
 
 
 
