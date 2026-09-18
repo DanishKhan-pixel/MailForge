@@ -36,6 +36,7 @@ def test_list_campaign_recipients_endpoint() -> None:
     cid = uuid.uuid4()
     db = MagicMock()
     db.get.return_value = MagicMock()
+    db.scalar.return_value = 2
     db.scalars.return_value.all.return_value = [
         RecipientItem(email="alice@example.com", name="Alice"),
         RecipientItem(email="bob@example.com", name="Bob"),
@@ -59,12 +60,11 @@ def test_list_campaign_recipients_endpoint() -> None:
 
 def test_list_campaign_recipients_pagination() -> None:
     cid = uuid.uuid4()
-    recipients = [
-        RecipientItem(email=f"user{i}@example.com", name=f"User{i}") for i in range(25)
-    ]
+    page_items = [RecipientItem(email=f"user{i}@example.com", name=f"User{i}") for i in range(10, 20)]
     db = MagicMock()
     db.get.return_value = MagicMock()
-    db.scalars.return_value.all.return_value = recipients
+    db.scalar.return_value = 25
+    db.scalars.return_value.all.return_value = page_items
     app.dependency_overrides[get_db] = lambda: db
     try:
         response = client.get(f"/campaigns/{cid}/recipients?page=2&page_size=10")
@@ -84,9 +84,8 @@ def test_list_campaign_recipients_page_out_of_range() -> None:
     cid = uuid.uuid4()
     db = MagicMock()
     db.get.return_value = MagicMock()
-    db.scalars.return_value.all.return_value = [
-        RecipientItem(email="user@example.com", name="User"),
-    ]
+    db.scalar.return_value = 1
+    db.scalars.return_value.all.return_value = []
     app.dependency_overrides[get_db] = lambda: db
     try:
         response = client.get(f"/campaigns/{cid}/recipients?page=5&page_size=20")

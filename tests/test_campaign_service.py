@@ -75,6 +75,23 @@ def test_get_campaign_recipients_query() -> None:
     assert result[0] == mock_recipient
 
 
+def test_paginate_campaign_recipients_applies_db_pagination() -> None:
+    from app.services.campaign_service import paginate_campaign_recipients
+
+    db = MagicMock()
+    db.scalar.return_value = 45
+    db.scalars.return_value.all.return_value = [MagicMock(), MagicMock()]
+
+    cid = uuid.uuid4()
+    items, total = paginate_campaign_recipients(db, cid, page=2, page_size=10)
+
+    assert total == 45
+    assert len(items) == 2
+    select_call = db.scalars.call_args.args[0]
+    compiled = str(select_call.compile(compile_kwargs={"literal_binds": True}))
+    assert "OFFSET" in compiled or "LIMIT" in compiled
+
+
 def test_campaign_status_payload_truncates_long_last_error() -> None:
     long_error = "E" * 1000
     campaign = MagicMock(spec=Campaign)
