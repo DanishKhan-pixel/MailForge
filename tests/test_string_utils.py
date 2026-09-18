@@ -26,3 +26,12 @@ def test_truncate_text_custom_suffix() -> None:
 
 def test_truncate_text_empty() -> None:
     assert truncate_text("") == ""
+
+
+def test_sanitize_subject() -> None:
+    from app.utils.string_utils import sanitize_subject
+
+    assert sanitize_subject("  Weekly   Newsletter  ") == "Weekly Newsletter"
+    assert sanitize_subject("Hello\r\nWorld!\n\n") == "Hello World!"
+    assert sanitize_subject("") == ""
+    assert sanitize_subject(None) == ""
