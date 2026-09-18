@@ -12,6 +12,17 @@ from app.services.email_service import AsyncEmailService, EmailService, _build_m
 
 
 @patch("smtplib.SMTP")
+def test_send_email_uses_configured_smtp_timeout(mock_smtp_cls: MagicMock) -> None:
+    mock_smtp_instance = MagicMock()
+    mock_smtp_cls.return_value.__enter__.return_value = mock_smtp_instance
+
+    service = EmailService()
+    service.send_email(recipient="user@example.com", subject="Test Subject", body="Test Body")
+
+    mock_smtp_cls.assert_called_once_with(settings.smtp_host, settings.smtp_port, timeout=settings.smtp_timeout)
+
+
+@patch("smtplib.SMTP")
 def test_send_email_sync(mock_smtp_cls: MagicMock) -> None:
     mock_smtp_instance = MagicMock()
     mock_smtp_cls.return_value.__enter__.return_value = mock_smtp_instance

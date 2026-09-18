@@ -69,3 +69,23 @@ def test_smtp_port_validation() -> None:
     with pytest.raises(ValidationError):
         Settings(SMTP_PORT=70000)
 
+
+def test_smtp_timeout_validation() -> None:
+    import pytest
+    from pydantic import ValidationError
+
+    valid_settings = Settings(SMTP_TIMEOUT=45)
+    assert valid_settings.smtp_timeout == 45
+
+    with pytest.raises(ValidationError):
+        Settings(SMTP_TIMEOUT=0)
+
+    with pytest.raises(ValidationError):
+        Settings(SMTP_TIMEOUT=300)
+
+
+def test_log_settings_defaults() -> None:
+    settings = Settings()
+    assert settings.log_dir == "logs"
+    assert settings.log_file_name == "email_automation.log"
+
