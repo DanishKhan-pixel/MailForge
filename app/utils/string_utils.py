@@ -22,3 +22,18 @@ def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
 
     content_length = max_length - len(suffix)
     return f"{text[:content_length]}{suffix}"
+
+
+def sanitize_subject(subject: str) -> str:
+    """Sanitize email subject string by stripping outer whitespace and replacing line breaks.
+
+    Args:
+        subject: Raw email subject line input.
+
+    Returns:
+        Sanitized single-line email subject string.
+    """
+    if not subject:
+        return ""
+    clean = subject.replace("\r", "").replace("\n", " ").strip()
+    return " ".join(clean.split())
