@@ -18,7 +18,11 @@ from app.db.session import SessionLocal
 from app.services.email_service import EmailService
 from app.utils import mask_email
 from app.workers.celery_app import celery_app
-from app.workers.constants import TASK_STATUS_COMPLETED, TASK_STATUS_MISSING_CAMPAIGN
+from app.workers.constants import (
+    TASK_STATUS_COMPLETED,
+    TASK_STATUS_FAILED,
+    TASK_STATUS_MISSING_CAMPAIGN,
+)
 
 logger = logging.getLogger(__name__)
 email_service = EmailService()
@@ -94,8 +98,13 @@ def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None
 
     throttle = delay_seconds or settings.send_delay_seconds
     db = SessionLocal()
-    cid = uuid.UUID(campaign_id)
     try:
+        try:
+            cid = uuid.UUID(campaign_id)
+        except (ValueError, AttributeError, TypeError):
+            logger.error("Invalid campaign id: %s", campaign_id)
+            return {"status": TASK_STATUS_FAILED}
+
         campaign = db.get(Campaign, cid)
         if not campaign:
             logger.error("Campaign missing: %s", campaign_id)
