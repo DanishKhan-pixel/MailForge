@@ -65,6 +65,41 @@ def test_dispatch_campaign_emails_logs_masked_emails(caplog, monkeypatch) -> Non
     assert campaign.sent_count == 1
 
 
+def test_dispatch_campaign_emails_skips_throttle_after_last_recipient(monkeypatch) -> None:
+    from app.db.models import Campaign, Recipient, RecipientStatus
+    from app.workers import tasks
+
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.subject = "Subject"
+    campaign.message = "Hello {name}"
+    campaign.sent_count = 0
+    campaign.failed_count = 0
+
+    recipients = []
+    for i in range(3):
+        recipient = MagicMock(spec=Recipient)
+        recipient.id = i + 1
+        recipient.email = f"user{i}@example.com"
+        recipient.name = f"User{i}"
+        recipient.status = RecipientStatus.pending
+        recipients.append(recipient)
+
+    db = MagicMock()
+    sleep_calls = {"count": 0}
+
+    def _fake_sleep(*_args):
+        sleep_calls["count"] += 1
+
+    monkeypatch.setattr(tasks.email_service, "send_email", lambda *args, **kwargs: None)
+    monkeypatch.setattr(tasks.time, "sleep", _fake_sleep)
+
+    _dispatch_campaign_emails(db, campaign, recipients, throttle=5)
+
+    assert sleep_calls["count"] == 2
+    assert campaign.sent_count == 3
+
+
 def test_send_campaign_emails_missing_campaign(monkeypatch) -> None:
     from app.workers import tasks
 
