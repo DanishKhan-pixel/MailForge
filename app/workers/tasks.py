@@ -56,7 +56,7 @@ def _dispatch_campaign_emails(
         recipients: Pending recipient records to dispatch to.
         throttle: Inter-email throttling delay in seconds.
     """
-    for recipient in recipients:
+    for idx, recipient in enumerate(recipients):
         try:
             body = _render_message(campaign.message, recipient.name)
             email_service.send_email(recipient.email, campaign.subject, body)
@@ -75,7 +75,8 @@ def _dispatch_campaign_emails(
             db.commit()
             logger.exception("Email failed campaign=%s recipient=%s", campaign.id, mask_email(recipient.email))
 
-        time.sleep(throttle)
+        if idx < len(recipients) - 1:
+            time.sleep(throttle)
 
 
 @celery_app.task(
