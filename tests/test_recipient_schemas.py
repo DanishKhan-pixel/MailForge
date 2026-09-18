@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import pytest
+from pydantic import ValidationError
+
 from app.schemas.recipient import RecipientItem, RecipientListResponse, SendOptions, UploadResponse
 
 
@@ -15,6 +18,11 @@ def test_recipient_item_optional_name() -> None:
     item = RecipientItem(email="user@example.com")
     assert item.email == "user@example.com"
     assert item.name is None
+
+
+def test_recipient_item_rejects_invalid_email() -> None:
+    with pytest.raises(ValidationError):
+        RecipientItem(email="invalid-email", name="User")
 
 
 def test_send_options_default() -> None:

@@ -23,3 +23,8 @@ def test_email_payload_validation_empty_subject() -> None:
 def test_email_payload_validation_empty_body() -> None:
     with pytest.raises(ValidationError):
         EmailPayload(recipient="user@example.com", subject="Welcome", body="")
+
+
+def test_email_payload_validation_invalid_recipient() -> None:
+    with pytest.raises(ValidationError):
+        EmailPayload(recipient="not-an-email", subject="Welcome", body="Hello")
