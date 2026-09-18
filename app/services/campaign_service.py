@@ -10,9 +10,11 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.models import Campaign, CampaignStatus, Recipient, RecipientStatus
-from app.utils import truncate_text
+from app.utils import chunk_list, truncate_text
 
 logger = logging.getLogger(__name__)
+
+RECIPIENT_UPLOAD_CHUNK_SIZE = 500
 
 
 def create_campaign(db: Session, subject: str, message: str) -> Campaign:
@@ -78,6 +80,9 @@ def get_campaign_or_404(db: Session, campaign_id: uuid.UUID) -> Campaign:
 def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]]) -> int:
     """Bulk insert recipient records for a campaign and update recipient total.
 
+    Rows are inserted in bounded chunks and flushed incrementally so large CSV
+    uploads do not grow the session identity map without limit.
+
     Args:
         db: Active SQLAlchemy database session.
         campaign: Target Campaign object.
@@ -86,11 +91,13 @@ def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]
     Returns:
         Count of recipients added.
     """
-    recipients = [Recipient(campaign_id=campaign.id, email=row["email"], name=row["name"] or None) for row in rows]
-    db.add_all(recipients)
-    campaign.total_emails = campaign.total_emails + len(recipients)
+    for chunk in chunk_list(rows, RECIPIENT_UPLOAD_CHUNK_SIZE):
+        recipients = [Recipient(campaign_id=campaign.id, email=row["email"], name=row["name"] or None) for row in chunk]
+        db.add_all(recipients)
+        db.flush()
+    campaign.total_emails = campaign.total_emails + len(rows)
     db.commit()
-    return len(recipients)
+    return len(rows)
 
 
 def list_campaigns(
