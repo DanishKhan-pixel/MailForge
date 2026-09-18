@@ -60,3 +60,11 @@ class CampaignQueryFilter(BaseModel):
     status: str | None = Field(default=None, description="Optional campaign status filter")
 
 
+class CampaignStats(BaseModel):
+    """Aggregate statistics summary response schema for campaigns."""
+
+    total_campaigns: int = Field(default=0, ge=0, description="Total number of created campaigns")
+    total_emails_sent: int = Field(default=0, ge=0, description="Total count of sent emails across all campaigns")
+    total_emails_failed: int = Field(default=0, ge=0, description="Total count of failed emails across all campaigns")
+
+
