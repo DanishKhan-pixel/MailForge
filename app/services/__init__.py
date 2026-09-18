@@ -11,6 +11,7 @@ from app.services.campaign_service import (
     latest_campaign_error,
     list_campaigns,
     mark_campaign_running,
+    paginate_campaign_recipients,
     upload_recipients,
 )
 from app.services.csv_service import parse_recipients_csv
@@ -21,6 +22,7 @@ __all__ = [
     "latest_campaign_error",
     "get_campaign_or_404",
     "get_campaign_recipients",
+    "paginate_campaign_recipients",
     "upload_recipients",
     "list_campaigns",
     "campaign_status_payload",

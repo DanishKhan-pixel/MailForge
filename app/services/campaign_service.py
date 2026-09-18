@@ -184,6 +184,35 @@ def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipie
     return list(db.scalars(query).all())
 
 
+def paginate_campaign_recipients(
+    db: Session, campaign_id: uuid.UUID, page: int, page_size: int
+) -> tuple[list[Recipient], int]:
+    """Retrieve a paginated slice of recipients for a campaign with the total matching count.
+
+    Pagination is applied at the database level to avoid loading the full
+    recipient list into memory for large campaigns.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign_id: Target campaign UUID.
+        page: 1-indexed page number.
+        page_size: Number of records to return per page.
+
+    Returns:
+        Tuple containing (list of Recipient objects for the page, total matching count).
+    """
+    conditions = [Recipient.campaign_id == campaign_id]
+    total = db.scalar(select(func.count(Recipient.id)).where(*conditions)) or 0
+    query = (
+        select(Recipient)
+        .where(*conditions)
+        .order_by(Recipient.id.asc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
+    return list(db.scalars(query).all()), total
+
+
 def is_valid_campaign_id(val: str) -> bool:
     """Validate whether a string is a valid UUID representation.
 

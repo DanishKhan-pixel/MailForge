@@ -29,10 +29,10 @@ from app.services.campaign_service import (
     create_campaign,
     ensure_can_send,
     get_campaign_or_404,
-    get_campaign_recipients,
     latest_campaign_error,
     list_campaigns,
     mark_campaign_running,
+    paginate_campaign_recipients,
     upload_recipients,
 )
 from app.services.csv_service import parse_recipients_csv
@@ -140,14 +140,12 @@ def list_campaign_recipients(
 ) -> RecipientListResponse:
     """List paginated recipient records registered for a specific campaign."""
     get_campaign_or_404(db, campaign_id)
-    recipients = get_campaign_recipients(db, campaign_id)
-    offset = (page - 1) * page_size
-    page_items = recipients[offset : offset + page_size]
+    recipients, total = paginate_campaign_recipients(db, campaign_id, page, page_size)
     return RecipientListResponse(
-        items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in page_items],
+        items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in recipients],
         page=page,
         page_size=page_size,
-        total=len(recipients),
+        total=total,
     )
 
 
