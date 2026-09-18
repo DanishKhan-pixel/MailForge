@@ -47,6 +47,16 @@ def test_build_message_composition() -> None:
     assert message.get_content().strip() == "Body"
 
 
+def test_build_message_sanitizes_subject_against_header_injection() -> None:
+    crafted = "Legit Subject\r\nBcc: attacker@example.com"
+    message = _build_message(recipient="user@example.com", subject=crafted, body="Body")
+
+    assert "\r" not in message["Subject"]
+    assert "\n" not in message["Subject"]
+    assert "Bcc" not in message
+    assert message["Subject"] == "Legit Subject Bcc: attacker@example.com"
+
+
 def test_send_email_retries_on_transient_smtp_failure(monkeypatch) -> None:
     from app.services import email_service
 
