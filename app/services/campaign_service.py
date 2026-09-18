@@ -242,4 +242,23 @@ def format_campaign_summary(campaign: Campaign) -> str:
     return f"Campaign '{campaign.subject}' [{status_str}] - Total: {campaign.total_emails}, Sent: {campaign.sent_count}, Failed: {campaign.failed_count}"
 
 
+def aggregate_campaign_stats(db: Session) -> dict[str, int]:
+    """Compute aggregate delivery statistics across all campaigns.
+
+    Args:
+        db: Active SQLAlchemy database session.
+
+    Returns:
+        Dictionary with total campaign count and summed sent/failed email totals.
+    """
+    total_campaigns = db.scalar(select(func.count(Campaign.id))) or 0
+    total_sent = db.scalar(select(func.coalesce(func.sum(Campaign.sent_count), 0))) or 0
+    total_failed = db.scalar(select(func.coalesce(func.sum(Campaign.failed_count), 0))) or 0
+    return {
+        "total_campaigns": total_campaigns,
+        "total_emails_sent": total_sent,
+        "total_emails_failed": total_failed,
+    }
+
+
 

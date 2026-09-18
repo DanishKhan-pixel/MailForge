@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.services.campaign_service import (
+    aggregate_campaign_stats,
     campaign_status_payload,
     create_campaign,
     ensure_can_send,
@@ -28,6 +29,7 @@ __all__ = [
     "campaign_status_payload",
     "ensure_can_send",
     "mark_campaign_running",
+    "aggregate_campaign_stats",
     "parse_recipients_csv",
     "EmailService",
     "AsyncEmailService",

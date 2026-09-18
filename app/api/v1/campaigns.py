@@ -15,6 +15,7 @@ from app.schemas.campaign import (
     CampaignCreate,
     CampaignListResponse,
     CampaignResponse,
+    CampaignStats,
     CampaignStatusResponse,
 )
 from app.schemas.recipient import (
@@ -25,6 +26,7 @@ from app.schemas.recipient import (
     UploadResponse,
 )
 from app.services.campaign_service import (
+    aggregate_campaign_stats,
     campaign_status_payload,
     create_campaign,
     ensure_can_send,
@@ -106,6 +108,12 @@ def list_campaigns_endpoint(
         page_size=page_size,
         total=total,
     )
+
+
+@router.get("/stats", response_model=CampaignStats, dependencies=[Depends(rate_limit(60, 60))])
+def campaign_stats_endpoint(db: Session = Depends(get_db)) -> CampaignStats:
+    """Return aggregate delivery statistics across all campaigns."""
+    return CampaignStats(**aggregate_campaign_stats(db))
 
 
 @router.get("/{campaign_id}", response_model=CampaignResponse, dependencies=[Depends(rate_limit(60, 60))])
