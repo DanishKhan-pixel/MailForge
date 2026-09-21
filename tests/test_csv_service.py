@@ -56,6 +56,18 @@ async def test_parse_recipients_csv_empty_file() -> None:
 
 
 @pytest.mark.asyncio
+async def test_parse_recipients_csv_rejects_oversized_file() -> None:
+    from app.services import csv_service
+
+    oversized = b"x" * (csv_service.MAX_CSV_BYTES + 1)
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(oversized))
+    with pytest.raises(HTTPException) as exc_info:
+        await parse_recipients_csv(file)
+    assert exc_info.value.status_code == 400
+    assert "maximum size" in exc_info.value.detail
+
+
+@pytest.mark.asyncio
 async def test_parse_recipients_csv_missing_email_header() -> None:
     file = UploadFile(filename="recipients.csv", file=io.BytesIO(b"name,age\nAlice,30\n"))
     with pytest.raises(HTTPException) as exc_info:
