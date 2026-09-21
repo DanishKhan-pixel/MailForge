@@ -126,6 +126,28 @@ def test_send_campaign_emails_invalid_campaign_id(monkeypatch) -> None:
     mock_db.close.assert_called_once()
 
 
+def test_send_campaign_emails_no_pending_recipients(monkeypatch) -> None:
+    from app.db.models import Campaign, CampaignStatus
+    from app.workers import tasks
+
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    db.scalars.return_value.all.return_value = []
+    monkeypatch.setattr(tasks, "SessionLocal", lambda: db)
+    monkeypatch.setattr(tasks.email_service, "send_email", lambda *a, **k: None)
+    monkeypatch.setattr(tasks.time, "sleep", lambda *a, **k: None)
+
+    result = tasks.send_campaign_emails.run(str(campaign.id), delay_seconds=0)
+
+    assert result == {"status": "completed"}
+    assert campaign.status == CampaignStatus.completed
+    assert db.commit.call_count == 1
+    db.close.assert_called_once()
+
+
 def test_send_campaign_emails_completed_flow(monkeypatch) -> None:
     from app.db.models import Campaign, RecipientStatus
     from app.workers import tasks

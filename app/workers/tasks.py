@@ -115,6 +115,12 @@ def send_campaign_emails(self: Task, campaign_id: str, delay_seconds: int | None
             select(Recipient).where(Recipient.campaign_id == cid, Recipient.status == RecipientStatus.pending)
         ).all()
 
+        if not pending_recipients:
+            logger.info("No pending recipients for campaign %s", campaign.id)
+            campaign.status = CampaignStatus.completed
+            db.commit()
+            return {"status": TASK_STATUS_COMPLETED}
+
         _dispatch_campaign_emails(db, campaign, pending_recipients, throttle)
 
         campaign.status = CampaignStatus.completed
