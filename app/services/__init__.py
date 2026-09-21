@@ -6,6 +6,7 @@ from app.services.campaign_service import (
     aggregate_campaign_stats,
     campaign_status_payload,
     create_campaign,
+    delete_campaign,
     ensure_can_send,
     get_campaign_or_404,
     get_campaign_recipients,
@@ -20,6 +21,7 @@ from app.services.email_service import AsyncEmailService, EmailService
 
 __all__ = [
     "create_campaign",
+    "delete_campaign",
     "latest_campaign_error",
     "get_campaign_or_404",
     "get_campaign_recipients",

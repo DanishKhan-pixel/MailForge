@@ -177,6 +177,17 @@ def mark_campaign_running(db: Session, campaign: Campaign) -> None:
     db.commit()
 
 
+def delete_campaign(db: Session, campaign: Campaign) -> None:
+    """Delete a campaign and its cascaded recipients and email logs.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign: Target Campaign object.
+    """
+    db.delete(campaign)
+    db.commit()
+
+
 def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipient]:
     """Retrieve all recipient records associated with a campaign.
 

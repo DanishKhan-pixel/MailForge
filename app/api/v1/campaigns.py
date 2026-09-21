@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.rate_limit import rate_limit
@@ -29,6 +29,7 @@ from app.services.campaign_service import (
     aggregate_campaign_stats,
     campaign_status_payload,
     create_campaign,
+    delete_campaign,
     ensure_can_send,
     get_campaign_or_404,
     latest_campaign_error,
@@ -133,6 +134,17 @@ def get_campaign_status(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -
     campaign = get_campaign_or_404(db, campaign_id)
     payload = campaign_status_payload(campaign, latest_campaign_error(db, campaign_id))
     return CampaignStatusResponse(**payload)
+
+
+@router.delete(
+    "/{campaign_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(rate_limit(20, 60))],
+)
+def delete_campaign_endpoint(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -> None:
+    """Delete a campaign along with its recipients and email logs."""
+    campaign = get_campaign_or_404(db, campaign_id)
+    delete_campaign(db, campaign)
 
 
 @router.get(
