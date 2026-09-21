@@ -12,6 +12,7 @@ email_adapter = TypeAdapter(EmailStr)
 MAX_CSV_RECIPIENTS = 5000
 MAX_EMAIL_LENGTH = 320
 MAX_NAME_LENGTH = 200
+UTF8_BOM = "\ufeff"
 
 
 def _validate_email(raw_email: str) -> str:
@@ -34,6 +35,9 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
         decoded = raw_content.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="CSV must be UTF-8 encoded.") from exc
+
+    if decoded.startswith(UTF8_BOM):
+        decoded = decoded[len(UTF8_BOM):]
 
     reader = csv.DictReader(io.StringIO(decoded))
     if not reader.fieldnames or "email" not in reader.fieldnames:
