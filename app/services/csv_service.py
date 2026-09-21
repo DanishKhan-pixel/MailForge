@@ -12,6 +12,7 @@ email_adapter = TypeAdapter(EmailStr)
 MAX_CSV_RECIPIENTS = 5000
 MAX_EMAIL_LENGTH = 320
 MAX_NAME_LENGTH = 200
+MAX_CSV_BYTES = 2 * 1024 * 1024
 UTF8_BOM = "\ufeff"
 
 
@@ -30,6 +31,11 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
     raw_content = await file.read()
     if not raw_content:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty.")
+    if len(raw_content) > MAX_CSV_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Uploaded file exceeds maximum size of {MAX_CSV_BYTES} bytes.",
+        )
 
     try:
         decoded = raw_content.decode("utf-8")
