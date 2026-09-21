@@ -33,6 +33,8 @@ class Settings(BaseSettings):
 
     log_dir: str = Field("logs", alias="LOG_DIR")
     log_file_name: str = Field("email_automation.log", alias="LOG_FILE_NAME")
+    log_max_bytes: int = Field(5 * 1024 * 1024, alias="LOG_MAX_BYTES", ge=1024)
+    log_backup_count: int = Field(5, alias="LOG_BACKUP_COUNT", ge=0, le=50)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
