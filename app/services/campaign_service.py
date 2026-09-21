@@ -192,23 +192,30 @@ def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipie
 
 
 def paginate_campaign_recipients(
-    db: Session, campaign_id: uuid.UUID, page: int, page_size: int
+    db: Session,
+    campaign_id: uuid.UUID,
+    page: int,
+    page_size: int,
+    status_filter: str | None = None,
 ) -> tuple[list[Recipient], int]:
     """Retrieve a paginated slice of recipients for a campaign with the total matching count.
 
-    Pagination is applied at the database level to avoid loading the full
-    recipient list into memory for large campaigns.
+    Pagination and optional status filtering are applied at the database level to
+    avoid loading the full recipient list into memory for large campaigns.
 
     Args:
         db: Active SQLAlchemy database session.
         campaign_id: Target campaign UUID.
         page: 1-indexed page number.
         page_size: Number of records to return per page.
+        status_filter: Optional recipient status filter string.
 
     Returns:
         Tuple containing (list of Recipient objects for the page, total matching count).
     """
     conditions = [Recipient.campaign_id == campaign_id]
+    if status_filter:
+        conditions.append(Recipient.status == status_filter)
     total = db.scalar(select(func.count(Recipient.id)).where(*conditions)) or 0
     query = (
         select(Recipient)

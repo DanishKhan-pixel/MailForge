@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.rate_limit import rate_limit
-from app.db.models import CampaignStatus
+from app.db.models import CampaignStatus, RecipientStatus
 from app.db.session import get_db
 from app.schemas.campaign import (
     CampaignCreate,
@@ -144,11 +144,14 @@ def list_campaign_recipients(
     campaign_id: uuid.UUID,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    status: RecipientStatus | None = Query(None),
     db: Session = Depends(get_db),
 ) -> RecipientListResponse:
     """List paginated recipient records registered for a specific campaign."""
     get_campaign_or_404(db, campaign_id)
-    recipients, total = paginate_campaign_recipients(db, campaign_id, page, page_size)
+    recipients, total = paginate_campaign_recipients(
+        db, campaign_id, page, page_size, status.value if status else None
+    )
     return RecipientListResponse(
         items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in recipients],
         page=page,
