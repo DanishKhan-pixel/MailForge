@@ -5,7 +5,9 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.utils import sanitize_subject
 
 
 class CampaignCreate(BaseModel):
@@ -13,6 +15,12 @@ class CampaignCreate(BaseModel):
 
     subject: str = Field(..., min_length=1, max_length=200, description="Email subject line")
     message: str = Field(..., min_length=1, max_length=10000, description="Email message template text")
+
+    @field_validator("subject", mode="before")
+    @classmethod
+    def _sanitize_subject(cls, value: str) -> str:
+        """Reject line breaks in subject lines to prevent SMTP header injection."""
+        return sanitize_subject(value)
 
 
 class CampaignResponse(BaseModel):
