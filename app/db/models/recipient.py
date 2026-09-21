@@ -25,6 +25,7 @@ class Recipient(Base):
     __tablename__ = "recipients"
     __table_args__ = (
         Index("uq_recipients_campaign_email", "campaign_id", func.lower(column("email")), unique=True),
+        Index("ix_recipients_campaign_status", "campaign_id", "status"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
