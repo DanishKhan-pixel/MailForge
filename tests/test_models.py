@@ -42,3 +42,8 @@ def test_recipient_has_case_insensitive_unique_index() -> None:
     assert "uq_recipients_campaign_email" in index_names
     unique_index = next(index for index in Recipient.__table__.indexes if index.name == "uq_recipients_campaign_email")
     assert unique_index.unique is True
+
+
+def test_recipient_has_campaign_status_composite_index() -> None:
+    index = next(index for index in Recipient.__table__.indexes if index.name == "ix_recipients_campaign_status")
+    assert {column.name for column in index.columns} == {"campaign_id", "status"}
