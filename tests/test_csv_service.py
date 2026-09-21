@@ -20,6 +20,15 @@ async def test_parse_recipients_csv_valid() -> None:
 
 
 @pytest.mark.asyncio
+async def test_parse_recipients_csv_strips_utf8_bom() -> None:
+    content = b"\xef\xbb\xbfemail,name\nalice@example.com,Alice\n"
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    result = await parse_recipients_csv(file)
+    assert len(result) == 1
+    assert result[0]["email"] == "alice@example.com"
+
+
+@pytest.mark.asyncio
 async def test_parse_recipients_csv_deduplication() -> None:
     content = b"email,name\nalice@example.com,Alice\nALICE@example.com,Alice Duplicate\n"
     file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
