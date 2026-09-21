@@ -110,6 +110,18 @@ def test_paginate_campaign_recipients_filters_by_status() -> None:
     assert "sent" in compiled
 
 
+def test_delete_campaign_removes_and_commits() -> None:
+    from app.services.campaign_service import delete_campaign
+
+    db = MagicMock()
+    campaign = MagicMock(spec=Campaign)
+
+    delete_campaign(db, campaign)
+
+    db.delete.assert_called_once_with(campaign)
+    db.commit.assert_called_once()
+
+
 def test_aggregate_campaign_stats_sums_delivery_totals() -> None:
     from app.services.campaign_service import aggregate_campaign_stats
 

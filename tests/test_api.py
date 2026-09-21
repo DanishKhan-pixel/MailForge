@@ -45,6 +45,35 @@ def test_campaign_stats_endpoint() -> None:
     assert response.json() == {"total_campaigns": 4, "total_emails_sent": 320, "total_emails_failed": 12}
 
 
+def test_delete_campaign_endpoint_returns_204() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.delete(f"/campaigns/{cid}")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 204
+    db.delete.assert_called_once_with(campaign)
+    db.commit.assert_called_once()
+
+
+def test_delete_campaign_endpoint_missing_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = None
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.delete(f"/campaigns/{cid}")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+
+
 def test_list_campaign_recipients_endpoint() -> None:
     cid = uuid.uuid4()
     db = MagicMock()

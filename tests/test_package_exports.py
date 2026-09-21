@@ -31,6 +31,7 @@ def test_services_package_exports() -> None:
     assert hasattr(app.services, "get_campaign_recipients")
     assert hasattr(app.services, "paginate_campaign_recipients")
     assert hasattr(app.services, "aggregate_campaign_stats")
+    assert hasattr(app.services, "delete_campaign")
 
 
 def test_services_package_exports_campaign_helpers() -> None:
