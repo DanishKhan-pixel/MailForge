@@ -92,6 +92,24 @@ def test_paginate_campaign_recipients_applies_db_pagination() -> None:
     assert "OFFSET" in compiled or "LIMIT" in compiled
 
 
+def test_paginate_campaign_recipients_filters_by_status() -> None:
+    from app.services.campaign_service import paginate_campaign_recipients
+
+    db = MagicMock()
+    db.scalar.return_value = 7
+    db.scalars.return_value.all.return_value = [MagicMock()]
+
+    cid = uuid.uuid4()
+    items, total = paginate_campaign_recipients(db, cid, page=1, page_size=20, status_filter="sent")
+
+    assert total == 7
+    assert len(items) == 1
+    select_call = db.scalars.call_args.args[0]
+    compiled = str(select_call.compile(compile_kwargs={"literal_binds": True}))
+    assert "status" in compiled
+    assert "sent" in compiled
+
+
 def test_aggregate_campaign_stats_sums_delivery_totals() -> None:
     from app.services.campaign_service import aggregate_campaign_stats
 

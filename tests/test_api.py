@@ -125,6 +125,37 @@ def test_list_campaign_recipients_missing_campaign_returns_404() -> None:
     assert response.status_code == 404
 
 
+def test_list_campaign_recipients_accepts_status_filter() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalar.return_value = 1
+    db.scalars.return_value.all.return_value = [
+        RecipientItem(email="alice@example.com", name="Alice"),
+    ]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients?status=sent")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+
+
+def test_list_campaign_recipients_rejects_invalid_status_filter() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients?status=bogus")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 422
+
+
 def test_list_campaigns_accepts_valid_status_filter() -> None:
     db = MagicMock()
     db.scalars.return_value.all.return_value = []
