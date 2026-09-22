@@ -46,13 +46,17 @@ async def parse_recipients_csv(file: UploadFile) -> list[dict[str, str]]:
         decoded = decoded[len(UTF8_BOM):]
 
     reader = csv.DictReader(io.StringIO(decoded))
-    if not reader.fieldnames or "email" not in reader.fieldnames:
+    if not reader.fieldnames:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="CSV must include an 'email' column.")
+    fieldnames = [name.strip() for name in reader.fieldnames]
+    if "email" not in fieldnames:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="CSV must include an 'email' column.")
 
     rows: list[dict[str, str]] = []
     invalid_rows: list[int] = []
 
-    for idx, row in enumerate(reader, start=2):
+    for idx, raw_row in enumerate(reader, start=2):
+        row = {name.strip(): value for name, value in raw_row.items()}
         email = (row.get("email") or "").strip()
         name = (row.get("name") or "").strip()[:MAX_NAME_LENGTH]
         if not email:
