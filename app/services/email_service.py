@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import smtplib
 import time
@@ -82,9 +83,13 @@ class AsyncEmailService:
     async def send_email(self, recipient: str, subject: str, body: str) -> None:
         """Asynchronously deliver a single email message via SMTP.
 
+        The blocking SMTP exchange is offloaded to a thread executor so the
+        event loop is not stalled while connecting and transmitting.
+
         Args:
             recipient: Target recipient email address.
             subject: Subject line string.
             body: Plaintext message body.
         """
-        _send_with_retry(_build_message(recipient, subject, body))
+        message = _build_message(recipient, subject, body)
+        await asyncio.to_thread(_send_with_retry, message)
