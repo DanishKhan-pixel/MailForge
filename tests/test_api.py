@@ -254,3 +254,68 @@ def test_export_campaign_recipients_missing_campaign_returns_404() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 404
+
+
+def test_send_campaign_endpoint_dispatches_via_celery(monkeypatch) -> None:
+    from app.api.v1 import campaigns as campaigns_module
+    from app.db.models import CampaignStatus
+
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 5
+    campaign.status = CampaignStatus.pending
+
+    task = MagicMock()
+    task.id = "celery-task-id"
+    monkeypatch.setattr(campaigns_module.send_campaign_emails, "delay", MagicMock(return_value=task))
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/send", json={"delay_seconds": 4})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["message"] == "Campaign sending started."
+    assert payload["task_id"] == "celery-task-id"
+    campaigns_module.send_campaign_emails.delay.assert_called_once_with(str(cid), 4)
+
+
+def test_send_campaign_endpoint_falls_back_to_background_task(monkeypatch) -> None:
+    from app.api.v1 import campaigns as campaigns_module
+    from app.db.models import CampaignStatus
+
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 3
+    campaign.status = CampaignStatus.pending
+
+    ran = []
+
+    def _boom(*args, **kwargs):
+        raise RuntimeError("Broker unreachable")
+
+    def _run(*args, **kwargs):
+        ran.append(args)
+
+    monkeypatch.setattr(campaigns_module.send_campaign_emails, "delay", _boom)
+    monkeypatch.setattr(campaigns_module.send_campaign_emails, "run", _run)
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/send", json={"delay_seconds": 4})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["message"] == "Campaign sending started (fallback mode)."
+    assert payload["task_id"] is None
+    assert ran == [(str(cid), 4)]
