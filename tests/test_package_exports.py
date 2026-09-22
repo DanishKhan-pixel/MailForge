@@ -48,6 +48,8 @@ def test_workers_package_exports() -> None:
 def test_api_package_exports() -> None:
     assert hasattr(app.api, "campaigns_router")
     assert hasattr(app.api.v1, "campaigns_router")
+    assert hasattr(app.api, "emails_router")
+    assert hasattr(app.api.v1, "emails_router")
 
 
 def test_utils_package_exports() -> None:
