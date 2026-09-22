@@ -25,7 +25,7 @@ openapi_tags = [
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="Campaign-based email automation with PostgreSQL and Celery workers.",
+    description=settings.app_description,
     openapi_tags=openapi_tags,
 )
 
