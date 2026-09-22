@@ -97,6 +97,15 @@ async def test_parse_recipients_csv_trims_surrounding_whitespace() -> None:
 
 
 @pytest.mark.asyncio
+async def test_parse_recipients_csv_tolerates_spaced_headers() -> None:
+    content = b" email , name  \nalice@example.com,Alice\n"
+    file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
+    result = await parse_recipients_csv(file)
+    assert len(result) == 1
+    assert result[0] == {"email": "alice@example.com", "name": "Alice"}
+
+
+@pytest.mark.asyncio
 async def test_parse_recipients_csv_deduplication_keeps_first_occurrence() -> None:
     content = b"email,name\nuser@example.com,First\nUSER@example.com,Second\n"
     file = UploadFile(filename="recipients.csv", file=io.BytesIO(content))
