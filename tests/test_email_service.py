@@ -49,6 +49,25 @@ async def test_send_email_async(mock_smtp_cls: MagicMock) -> None:
     mock_smtp_instance.send_message.assert_called_once()
 
 
+@pytest.mark.asyncio
+async def test_async_send_offloads_blocking_delivery_to_thread(monkeypatch) -> None:
+    from app.services import email_service
+
+    captured: dict = {}
+
+    async def _fake_to_thread(func, *args, **kwargs) -> None:
+        captured["func"] = func
+        captured["args"] = args
+
+    monkeypatch.setattr(email_service.asyncio, "to_thread", _fake_to_thread)
+
+    service = AsyncEmailService()
+    await service.send_email(recipient="user@example.com", subject="Subject", body="Body")
+
+    assert captured["func"] is email_service._send_with_retry
+    assert len(captured["args"]) == 1
+
+
 def test_build_message_composition() -> None:
     message = _build_message(recipient="user@example.com", subject="Subject", body="Body")
 
