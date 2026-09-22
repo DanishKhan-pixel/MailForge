@@ -34,6 +34,9 @@ class CampaignResponse(BaseModel):
     failed_count: int = Field(..., description="Count of failed email deliveries")
     status: str = Field(..., description="Current status of campaign execution")
     created_at: datetime = Field(..., description="Timestamp when campaign was created")
+    updated_at: datetime | None = Field(
+        default=None, description="Timestamp when campaign was last modified"
+    )
 
     model_config = {"from_attributes": True}
 
