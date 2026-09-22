@@ -6,6 +6,7 @@ import logging
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.core.rate_limit import rate_limit
@@ -27,11 +28,13 @@ from app.schemas.recipient import (
 )
 from app.services.campaign_service import (
     aggregate_campaign_stats,
+    build_recipients_csv,
     campaign_status_payload,
     create_campaign,
     delete_campaign,
     ensure_can_send,
     get_campaign_or_404,
+    get_campaign_recipients,
     latest_campaign_error,
     list_campaigns,
     mark_campaign_running,
@@ -169,6 +172,28 @@ def list_campaign_recipients(
         page=page,
         page_size=page_size,
         total=total,
+    )
+
+
+@router.get(
+    "/{campaign_id}/recipients/export",
+    response_class=Response,
+    dependencies=[Depends(rate_limit(10, 60))],
+)
+def export_campaign_recipients(
+    campaign_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> Response:
+    """Download the full recipient list for a campaign as a CSV file."""
+    campaign = get_campaign_or_404(db, campaign_id)
+    recipients = get_campaign_recipients(db, campaign_id)
+    csv_content = build_recipients_csv(recipients)
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="campaign_{campaign.id}_recipients.csv"',
+        },
     )
 
 

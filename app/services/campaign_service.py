@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+import io
 import logging
 import uuid
 
@@ -200,6 +202,24 @@ def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipie
     """
     query = select(Recipient).where(Recipient.campaign_id == campaign_id).order_by(Recipient.id.asc())
     return list(db.scalars(query).all())
+
+
+def build_recipients_csv(recipients: list[Recipient]) -> str:
+    """Serialize recipient records into a CSV payload string.
+
+    Args:
+        recipients: Recipient records to export.
+
+    Returns:
+        CSV text with an email/name/status header row and one row per recipient.
+    """
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["email", "name", "status"])
+    for recipient in recipients:
+        status = recipient.status.value if isinstance(recipient.status, RecipientStatus) else str(recipient.status)
+        writer.writerow([recipient.email, recipient.name or "", status])
+    return buffer.getvalue()
 
 
 def paginate_campaign_recipients(
