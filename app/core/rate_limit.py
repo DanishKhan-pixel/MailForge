@@ -7,7 +7,7 @@ from collections import defaultdict, deque
 from collections.abc import Callable
 from threading import Lock
 
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, Response, status
 
 _requests: dict[str, deque[float]] = defaultdict(deque)
 _lock = Lock()
@@ -40,7 +40,7 @@ def _evict_oldest_buckets() -> None:
             return
 
 
-def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], None]:
+def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request, Response], None]:
     """Factory creating a FastAPI dependency for client IP rate limiting.
 
     Each unique (limit, window) configuration gets its own independent bucket so
@@ -48,6 +48,9 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], No
     storage is bounded: when the number of tracked buckets exceeds the cap, stale
     empty buckets are swept and the least recently active buckets are evicted to
     keep memory usage bounded.
+
+    When FastAPI supplies a Response object, standard ``X-RateLimit-*`` headers
+    are attached so clients can observe remaining quota and reset timing.
 
     Args:
         max_requests: Maximum allowed requests within the sliding window.
@@ -60,7 +63,7 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], No
         HTTPException: 429 TOO MANY REQUESTS if limit is exceeded.
     """
 
-    def dependency(request: Request) -> None:
+    def dependency(request: Request, response: Response) -> None:
         ip = request.client.host if request.client else "unknown"
         key = f"{ip}:{max_requests}:{window_seconds}"
         now = time.time()
@@ -77,6 +80,11 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request], No
             if len(_requests) > MAX_RATE_LIMIT_BUCKETS:
                 _sweep_expired_buckets(now)
                 _evict_oldest_buckets()
+
+        elapsed = now - queue[0] if queue else 0
+        response.headers["X-RateLimit-Limit"] = str(max_requests)
+        response.headers["X-RateLimit-Remaining"] = str(max(max_requests - len(queue), 0))
+        response.headers["X-RateLimit-Reset"] = str(int(max(window_seconds - elapsed, 0)))
 
     return dependency
 
