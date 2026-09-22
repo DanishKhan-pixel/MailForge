@@ -22,6 +22,17 @@ def test_campaign_model_repr_and_defaults() -> None:
     assert campaign.status == CampaignStatus.pending
 
 
+def test_campaign_model_has_updated_at_timestamp() -> None:
+    cid = uuid.uuid4()
+    campaign = Campaign(id=cid, subject="Welcome", message="Hello")
+    assert campaign.updated_at is None
+
+    column = Campaign.__table__.columns.get("updated_at")
+    assert column is not None
+    assert column.server_default is not None
+    assert column.onupdate is not None
+
+
 def test_recipient_model_repr() -> None:
     cid = uuid.uuid4()
     recipient = Recipient(id=1, campaign_id=cid, email="test@example.com", status=RecipientStatus.pending)
