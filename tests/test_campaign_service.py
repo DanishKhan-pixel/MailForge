@@ -8,8 +8,30 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException
 
-from app.db.models import Campaign, CampaignStatus
-from app.services.campaign_service import campaign_status_payload, ensure_can_send
+from app.db.models import Campaign, CampaignStatus, RecipientStatus
+from app.services.campaign_service import build_recipients_csv, campaign_status_payload, ensure_can_send
+
+
+def test_build_recipients_csv_serializes_rows() -> None:
+    first = MagicMock(spec=RecipientStatus)
+    first.email = "alice@example.com"
+    first.name = "Alice"
+    first.status = RecipientStatus.sent
+    second = MagicMock(spec=RecipientStatus)
+    second.email = "bob@example.com"
+    second.name = None
+    second.status = RecipientStatus.pending
+
+    csv_text = build_recipients_csv([first, second])
+
+    lines = csv_text.strip().splitlines()
+    assert lines[0] == "email,name,status"
+    assert "alice@example.com,Alice,sent" in lines
+    assert "bob@example.com,,pending" in lines
+
+
+def test_build_recipients_csv_handles_empty_list() -> None:
+    assert build_recipients_csv([]).strip() == "email,name,status"
 
 
 def test_campaign_status_payload_calculation() -> None:

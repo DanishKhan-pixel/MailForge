@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from app.db.session import get_db
 from app.main import app
 from app.schemas.recipient import RecipientItem
+from app.db.models import RecipientStatus
 
 client = TestClient(app)
 
@@ -208,3 +209,48 @@ def test_list_campaigns_rejects_invalid_status_filter() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 422
+
+
+def test_export_campaign_recipients_endpoint() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+
+    first = MagicMock()
+    first.email = "alice@example.com"
+    first.name = "Alice"
+    first.status = RecipientStatus.sent
+    second = MagicMock()
+    second.email = "bob@example.com"
+    second.name = None
+    second.status = RecipientStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    db.scalars.return_value.all.return_value = [first, second]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/export")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/csv")
+    assert 'attachment; filename="campaign_' in response.headers["content-disposition"]
+    lines = response.text.strip().splitlines()
+    assert lines[0] == "email,name,status"
+    assert "alice@example.com,Alice,sent" in lines
+    assert "bob@example.com,,pending" in lines
+
+
+def test_export_campaign_recipients_missing_campaign_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = None
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/export")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
