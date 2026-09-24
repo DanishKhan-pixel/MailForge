@@ -497,3 +497,38 @@ def test_retry_failed_recipients_missing_campaign_returns_404() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 404
+
+
+def test_successful_response_includes_rate_limit_headers() -> None:
+    from app.core.rate_limit import reset_rate_limits
+
+    reset_rate_limits()
+    db = MagicMock()
+    db.scalars.return_value.all.return_value = []
+    db.scalar.return_value = 0
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get("/campaigns")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.headers["X-RateLimit-Limit"] == "60"
+    assert response.headers["X-RateLimit-Remaining"] == "59"
+    assert int(response.headers["X-RateLimit-Reset"]) >= 0
+
+
+def test_throttled_endpoint_returns_429_with_retry_after(monkeypatch) -> None:
+    from app.api.v1 import emails as emails_module
+    from app.core.rate_limit import reset_rate_limits
+
+    reset_rate_limits()
+    monkeypatch.setattr(emails_module.email_service, "send_email", lambda *args, **kwargs: None)
+
+    payload = {"recipient": "alice@example.com", "subject": "Hi", "body": "Hello"}
+    responses = [client.post("/emails", json=payload) for _ in range(21)]
+
+    assert responses[0].status_code == 200
+    assert responses[0].headers["X-RateLimit-Limit"] == "20"
+    assert responses[-1].status_code == 429
+    assert int(responses[-1].headers["Retry-After"]) >= 1
