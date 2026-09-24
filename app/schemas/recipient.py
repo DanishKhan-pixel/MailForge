@@ -31,7 +31,7 @@ class RecipientItem(BaseModel):
     """Schema representing an individual email campaign recipient."""
 
     email: EmailStr = Field(..., description="Recipient email address")
-    name: str | None = Field(default=None, description="Optional recipient display name")
+    name: str | None = Field(default=None, max_length=200, description="Optional recipient display name")
 
 
 class RecipientListResponse(BaseModel):
@@ -48,7 +48,7 @@ class RecipientDetail(BaseModel):
 
     id: int = Field(..., description="Recipient identifier")
     email: EmailStr = Field(..., description="Recipient email address")
-    name: str | None = Field(default=None, description="Optional recipient display name")
+    name: str | None = Field(default=None, max_length=200, description="Optional recipient display name")
     status: str = Field(..., description="Current recipient delivery status")
     error_message: str | None = Field(default=None, description="Error message from last failed attempt")
     sent_at: datetime | None = Field(default=None, description="Timestamp of successful delivery")
