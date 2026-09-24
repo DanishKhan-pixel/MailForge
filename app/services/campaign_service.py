@@ -99,6 +99,33 @@ def get_campaign_recipient_or_404(db: Session, campaign_id: uuid.UUID, recipient
     return recipient
 
 
+def retry_failed_recipients(db: Session, campaign: Campaign) -> int:
+    """Reset failed recipients of a campaign back to pending for retry.
+
+    Clears per-recipient error and sent metadata so a follow-up dispatch
+    attempt can process them again.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign: Target Campaign object.
+
+    Returns:
+        Number of recipients queued for retry.
+    """
+    failed_recipients = db.scalars(
+        select(Recipient).where(
+            Recipient.campaign_id == campaign.id,
+            Recipient.status == RecipientStatus.failed,
+        )
+    ).all()
+    for recipient in failed_recipients:
+        recipient.status = RecipientStatus.pending
+        recipient.error_message = None
+        recipient.sent_at = None
+    db.commit()
+    return len(failed_recipients)
+
+
 def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]]) -> int:
     """Bulk insert recipient records for a campaign and update recipient total.
 

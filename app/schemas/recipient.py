@@ -54,6 +54,13 @@ class RecipientDetail(BaseModel):
     sent_at: datetime | None = Field(default=None, description="Timestamp of successful delivery")
 
 
+class RecipientRetryResponse(BaseModel):
+    """Response returned after queueing failed recipients for retry."""
+
+    message: str = Field(..., description="Status summary message")
+    recipient_count: int = Field(..., description="Number of failed recipients reset for retry")
+
+
 class EmailPayload(BaseModel):
     """Payload representing an individual outbound email dispatch."""
 

@@ -25,6 +25,7 @@ from app.schemas.recipient import (
     RecipientDetail,
     RecipientItem,
     RecipientListResponse,
+    RecipientRetryResponse,
     SendOptions,
     SendTriggerResponse,
     UploadResponse,
@@ -44,6 +45,7 @@ from app.services.campaign_service import (
     mark_campaign_running,
     paginate_campaign_logs,
     paginate_campaign_recipients,
+    retry_failed_recipients,
     upload_recipients,
 )
 from app.services.csv_service import parse_recipients_csv
@@ -226,6 +228,22 @@ def get_campaign_recipient(
         error_message=recipient.error_message,
         sent_at=recipient.sent_at,
     )
+
+
+@router.post(
+    "/{campaign_id}/recipients/retry",
+    response_model=RecipientRetryResponse,
+    dependencies=[Depends(rate_limit(10, 60))],
+)
+def retry_failed_recipients_endpoint(
+    campaign_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> RecipientRetryResponse:
+    """Reset failed recipients of a campaign back to pending for a retry attempt."""
+    campaign = get_campaign_or_404(db, campaign_id)
+    ensure_can_send(campaign)
+    count = retry_failed_recipients(db, campaign)
+    return RecipientRetryResponse(message="Failed recipients queued for retry.", recipient_count=count)
 
 
 @router.get(
