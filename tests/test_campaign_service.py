@@ -9,12 +9,13 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException
 
-from app.db.models import Campaign, CampaignStatus, EmailLog, RecipientStatus
+from app.db.models import Campaign, CampaignStatus, EmailLog, Recipient, RecipientStatus
 from app.services.campaign_service import (
     build_recipients_csv,
     campaign_status_payload,
     ensure_can_send,
     paginate_campaign_logs,
+    retry_failed_recipients,
 )
 
 
@@ -71,6 +72,43 @@ def test_paginate_campaign_logs_empty_campaign() -> None:
 
     assert total == 0
     assert items == []
+
+
+def test_retry_failed_recipients_resets_failed_rows() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = cid
+
+    first = MagicMock(spec=Recipient)
+    first.status = RecipientStatus.failed
+    first.error_message = "Connection refused"
+    first.sent_at = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+    second = MagicMock(spec=Recipient)
+    second.status = RecipientStatus.failed
+    second.error_message = "Timeout"
+    second.sent_at = datetime(2026, 9, 1, 13, 0, tzinfo=timezone.utc)
+
+    db = MagicMock()
+    db.scalars.return_value.all.return_value = [first, second]
+
+    count = retry_failed_recipients(db, campaign)
+
+    assert count == 2
+    assert first.status == RecipientStatus.pending
+    assert first.error_message is None
+    assert first.sent_at is None
+    assert second.status == RecipientStatus.pending
+    db.commit.assert_called_once()
+
+
+def test_retry_failed_recipients_noop_when_none_failed() -> None:
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    db = MagicMock()
+    db.scalars.return_value.all.return_value = []
+
+    assert retry_failed_recipients(db, campaign) == 0
+    db.commit.assert_called_once()
 
 
 def test_campaign_status_payload_calculation() -> None:

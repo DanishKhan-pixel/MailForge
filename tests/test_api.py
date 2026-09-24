@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 from fastapi.testclient import TestClient
 
-from app.db.models import RecipientStatus
+from app.db.models import CampaignStatus, RecipientStatus
 from app.db.session import get_db
 from app.main import app
 from app.schemas.recipient import RecipientItem
@@ -442,6 +442,57 @@ def test_get_campaign_recipient_wrong_campaign_returns_404() -> None:
     app.dependency_overrides[get_db] = lambda: db
     try:
         response = client.get(f"/campaigns/{cid}/recipients/7")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+
+
+def test_retry_failed_recipients_endpoint() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 3
+    campaign.status = CampaignStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    db.scalars.return_value.all.return_value = [MagicMock(), MagicMock()]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/recipients/retry")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {"message": "Failed recipients queued for retry.", "recipient_count": 2}
+
+
+def test_retry_failed_recipients_running_campaign_returns_409() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 3
+    campaign.status = CampaignStatus.running
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/recipients/retry")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 409
+
+
+def test_retry_failed_recipients_missing_campaign_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = None
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/recipients/retry")
     finally:
         app.dependency_overrides.clear()
 
