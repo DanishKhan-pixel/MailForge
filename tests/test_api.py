@@ -388,3 +388,61 @@ def test_list_campaign_logs_missing_campaign_returns_404() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 404
+
+
+def test_get_campaign_recipient_returns_details() -> None:
+    cid = uuid.uuid4()
+    recipient = MagicMock()
+    recipient.id = 7
+    recipient.campaign_id = cid
+    recipient.email = "alice@example.com"
+    recipient.name = "Alice"
+    recipient.status = RecipientStatus.sent
+    recipient.error_message = None
+    recipient.sent_at = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+
+    db = MagicMock()
+    db.get.side_effect = [MagicMock(), recipient]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/7")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": 7,
+        "email": "alice@example.com",
+        "name": "Alice",
+        "status": "sent",
+        "error_message": None,
+        "sent_at": "2026-09-01T12:00:00Z",
+    }
+
+
+def test_get_campaign_recipient_missing_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.side_effect = [MagicMock(), None]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/7")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+
+
+def test_get_campaign_recipient_wrong_campaign_returns_404() -> None:
+    cid = uuid.uuid4()
+    recipient = MagicMock()
+    recipient.campaign_id = uuid.uuid4()
+    db = MagicMock()
+    db.get.side_effect = [MagicMock(), recipient]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/7")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
