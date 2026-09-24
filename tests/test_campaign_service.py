@@ -3,13 +3,19 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest
 from fastapi import HTTPException
 
-from app.db.models import Campaign, CampaignStatus, RecipientStatus
-from app.services.campaign_service import build_recipients_csv, campaign_status_payload, ensure_can_send
+from app.db.models import Campaign, CampaignStatus, EmailLog, RecipientStatus
+from app.services.campaign_service import (
+    build_recipients_csv,
+    campaign_status_payload,
+    ensure_can_send,
+    paginate_campaign_logs,
+)
 
 
 def test_build_recipients_csv_serializes_rows() -> None:
@@ -32,6 +38,39 @@ def test_build_recipients_csv_serializes_rows() -> None:
 
 def test_build_recipients_csv_handles_empty_list() -> None:
     assert build_recipients_csv([]).strip() == "email,name,status"
+
+
+def test_paginate_campaign_logs_returns_ordered_slice() -> None:
+    cid = uuid.uuid4()
+    log = MagicMock(spec=EmailLog)
+    log.id = 44
+    log.recipient_id = 7
+    log.status = "sent"
+    log.response = "SMTP delivered"
+    log.timestamp = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+
+    db = MagicMock()
+    db.scalar.return_value = 25
+    db.scalars.return_value.all.return_value = [log]
+
+    items, total = paginate_campaign_logs(db, cid, page=1, page_size=20)
+
+    assert total == 25
+    assert len(items) == 1
+    assert items[0].id == 44
+    assert items[0].status == "sent"
+
+
+def test_paginate_campaign_logs_empty_campaign() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.scalar.return_value = 0
+    db.scalars.return_value.all.return_value = []
+
+    items, total = paginate_campaign_logs(db, cid, page=1, page_size=20)
+
+    assert total == 0
+    assert items == []
 
 
 def test_campaign_status_payload_calculation() -> None:

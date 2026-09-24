@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 from fastapi.testclient import TestClient
 
+from app.db.models import RecipientStatus
 from app.db.session import get_db
 from app.main import app
 from app.schemas.recipient import RecipientItem
-from app.db.models import RecipientStatus
 
 client = TestClient(app)
 
@@ -319,3 +320,71 @@ def test_send_campaign_endpoint_falls_back_to_background_task(monkeypatch) -> No
     assert payload["message"] == "Campaign sending started (fallback mode)."
     assert payload["task_id"] is None
     assert ran == [(str(cid), 4)]
+
+
+def test_list_campaign_logs_endpoint() -> None:
+    cid = uuid.uuid4()
+    log = MagicMock()
+    log.id = 44
+    log.recipient_id = 7
+    log.recipient.email = "alice@example.com"
+    log.status = "sent"
+    log.response = "SMTP delivered"
+    log.timestamp = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalar.return_value = 25
+    db.scalars.return_value.all.return_value = [log]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/logs")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 25
+    assert payload["page"] == 1
+    assert payload["page_size"] == 20
+    assert payload["items"] == [
+        {
+            "id": 44,
+            "recipient_id": 7,
+            "recipient_email": "alice@example.com",
+            "status": "sent",
+            "response": "SMTP delivered",
+            "timestamp": "2026-09-01T12:00:00Z",
+        }
+    ]
+
+
+def test_list_campaign_logs_empty_campaign() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalar.return_value = 0
+    db.scalars.return_value.all.return_value = []
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/logs")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 0
+    assert payload["items"] == []
+
+
+def test_list_campaign_logs_missing_campaign_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = None
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/logs")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
