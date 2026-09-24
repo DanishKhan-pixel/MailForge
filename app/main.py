@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from app.api.v1.campaigns import router as campaigns_router
 from app.api.v1.emails import router as emails_router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.core.middleware import RequestLoggingMiddleware
-from app.schemas.common import HealthResponse
+from app.db.session import get_db
+from app.schemas.common import HealthResponse, ReadyResponse
 
 
 configure_logging()
@@ -57,6 +61,26 @@ def health_check() -> HealthResponse:
         HealthResponse object containing service status indicator.
     """
     return HealthResponse(status="ok")
+
+
+@app.get("/ready", response_model=ReadyResponse, tags=["Health"])
+def readiness_check(db: Session = Depends(get_db)) -> ReadyResponse:
+    """Probe database connectivity to report service readiness.
+
+    Args:
+        db: Managed SQLAlchemy database session dependency.
+
+    Returns:
+        ReadyResponse indicating whether the service can accept traffic.
+
+    Raises:
+        HTTPException: 503 SERVICE UNAVAILABLE if database is unreachable.
+    """
+    try:
+        db.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        raise HTTPException(status_code=503, detail="Database unavailable.") from exc
+    return ReadyResponse(status="ready")
 
 
 @app.get("/dashboard", response_class=HTMLResponse, tags=["UI"])

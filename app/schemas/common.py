@@ -24,6 +24,12 @@ class HealthResponse(BaseModel):
     status: str = Field(default="ok", description="Service health indicator")
 
 
+class ReadyResponse(BaseModel):
+    """Readiness probe response schema."""
+
+    status: str = Field(default="ready", description="Readiness indicator")
+
+
 class ErrorDetail(BaseModel):
     """Detailed API error message model."""
 
