@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 from collections import defaultdict, deque
 from collections.abc import Callable
@@ -13,6 +14,14 @@ _requests: dict[str, deque[float]] = defaultdict(deque)
 _lock = Lock()
 
 MAX_RATE_LIMIT_BUCKETS = 10_000
+
+
+def _retry_after_seconds(now: float, queue: deque[float], window_seconds: int) -> str:
+    """Compute the Retry-After value in whole seconds for a throttled request."""
+    if not queue:
+        return str(window_seconds)
+    remaining = window_seconds - (now - queue[0])
+    return str(max(1, math.ceil(remaining)))
 
 
 def _sweep_expired_buckets(now: float) -> None:
@@ -60,7 +69,8 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request, Res
         FastAPI dependency function validating rate limit status.
 
     Raises:
-        HTTPException: 429 TOO MANY REQUESTS if limit is exceeded.
+        HTTPException: 429 TOO MANY REQUESTS if limit is exceeded. The exception
+            carries a ``Retry-After`` header with the recommend wait in seconds.
     """
 
     def dependency(request: Request, response: Response) -> None:
@@ -75,6 +85,7 @@ def rate_limit(max_requests: int, window_seconds: int) -> Callable[[Request, Res
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     detail="Rate limit exceeded. Please retry later.",
+                    headers={"Retry-After": _retry_after_seconds(now, queue, window_seconds)},
                 )
             queue.append(now)
             if len(_requests) > MAX_RATE_LIMIT_BUCKETS:
