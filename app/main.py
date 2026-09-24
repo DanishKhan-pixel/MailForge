@@ -10,24 +10,25 @@ from app.api.v1.campaigns import router as campaigns_router
 from app.api.v1.emails import router as emails_router
 from app.core.config import settings
 from app.core.logging import configure_logging
+from app.core.middleware import RequestLoggingMiddleware
 from app.schemas.common import HealthResponse
 
 
 configure_logging()
 
-openapi_tags = [
-    {"name": "Campaigns", "description": "Operations for managing and triggering email campaigns."},
-    {"name": "Emails", "description": "Single-email dispatch operations."},
-    {"name": "Health", "description": "System health and status endpoints."},
-    {"name": "UI", "description": "Web frontend user interface dashboard pages."},
-]
-
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description=settings.app_description,
-    openapi_tags=openapi_tags,
+    openapi_tags=[
+        {"name": "Campaigns", "description": "Operations for managing and triggering email campaigns."},
+        {"name": "Emails", "description": "Single-email dispatch operations."},
+        {"name": "Health", "description": "System health and status endpoints."},
+        {"name": "UI", "description": "Web frontend user interface dashboard pages."},
+    ],
 )
+
+app.add_middleware(RequestLoggingMiddleware)
 
 
 app.include_router(campaigns_router)
