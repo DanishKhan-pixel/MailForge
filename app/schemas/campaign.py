@@ -79,3 +79,23 @@ class CampaignStats(BaseModel):
     total_emails_failed: int = Field(default=0, ge=0, description="Total count of failed emails across all campaigns")
 
 
+class EmailLogItem(BaseModel):
+    """Individual email delivery log entry for a campaign."""
+
+    id: int = Field(..., description="Email log identifier")
+    recipient_id: int = Field(..., description="Recipient identifier the log belongs to")
+    recipient_email: str = Field(..., description="Recipient email address")
+    status: str = Field(..., description="Delivery attempt status (sent or failed)")
+    response: str | None = Field(default=None, description="SMTP response or error message")
+    timestamp: datetime = Field(..., description="Timestamp of the delivery attempt")
+
+
+class EmailLogListResponse(BaseModel):
+    """Paginated list response of email delivery logs for a campaign."""
+
+    items: list[EmailLogItem] = Field(..., description="List of email log records")
+    page: int = Field(..., description="Current page number")
+    page_size: int = Field(..., description="Page size limit")
+    total: int = Field(..., description="Total count of email log records")
+
+

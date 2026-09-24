@@ -11,7 +11,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Campaign, CampaignStatus, Recipient, RecipientStatus
+from app.db.models import Campaign, CampaignStatus, EmailLog, Recipient, RecipientStatus
 from app.utils import chunk_list, truncate_text
 
 logger = logging.getLogger(__name__)
@@ -255,6 +255,36 @@ def paginate_campaign_recipients(
         .offset((page - 1) * page_size)
         .limit(page_size)
     )
+    return list(db.scalars(query).all()), total
+
+
+def paginate_campaign_logs(
+    db: Session,
+    campaign_id: uuid.UUID,
+    page: int,
+    page_size: int,
+) -> tuple[list[EmailLog], int]:
+    """Retrieve a paginated slice of email delivery logs for a campaign.
+
+    Logs are joined through recipients so only attempts belonging to the
+    campaign are returned, ordered newest-first.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign_id: Target campaign UUID.
+        page: 1-indexed page number.
+        page_size: Number of records per page.
+
+    Returns:
+        Tuple containing (list of EmailLog objects for the page, total count).
+    """
+    base = select(EmailLog).join(Recipient, EmailLog.recipient_id == Recipient.id).where(
+        Recipient.campaign_id == campaign_id
+    )
+    total = db.scalar(select(func.count(EmailLog.id)).join(Recipient, EmailLog.recipient_id == Recipient.id).where(
+        Recipient.campaign_id == campaign_id
+    )) or 0
+    query = base.order_by(EmailLog.timestamp.desc(), EmailLog.id.desc()).offset((page - 1) * page_size).limit(page_size)
     return list(db.scalars(query).all()), total
 
 

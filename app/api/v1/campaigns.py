@@ -18,6 +18,8 @@ from app.schemas.campaign import (
     CampaignResponse,
     CampaignStats,
     CampaignStatusResponse,
+    EmailLogItem,
+    EmailLogListResponse,
 )
 from app.schemas.recipient import (
     RecipientItem,
@@ -38,6 +40,7 @@ from app.services.campaign_service import (
     latest_campaign_error,
     list_campaigns,
     mark_campaign_running,
+    paginate_campaign_logs,
     paginate_campaign_recipients,
     upload_recipients,
 )
@@ -194,6 +197,38 @@ def export_campaign_recipients(
         headers={
             "Content-Disposition": f'attachment; filename="campaign_{campaign.id}_recipients.csv"',
         },
+    )
+
+
+@router.get(
+    "/{campaign_id}/logs",
+    response_model=EmailLogListResponse,
+    dependencies=[Depends(rate_limit(60, 60))],
+)
+def list_campaign_logs(
+    campaign_id: uuid.UUID,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+) -> EmailLogListResponse:
+    """List paginated email delivery log records for a specific campaign."""
+    get_campaign_or_404(db, campaign_id)
+    logs, total = paginate_campaign_logs(db, campaign_id, page, page_size)
+    return EmailLogListResponse(
+        items=[
+            EmailLogItem(
+                id=log.id,
+                recipient_id=log.recipient_id,
+                recipient_email=log.recipient.email,
+                status=log.status,
+                response=log.response,
+                timestamp=log.timestamp,
+            )
+            for log in logs
+        ],
+        page=page,
+        page_size=page_size,
+        total=total,
     )
 
 
