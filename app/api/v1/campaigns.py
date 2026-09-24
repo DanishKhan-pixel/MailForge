@@ -22,6 +22,7 @@ from app.schemas.campaign import (
     EmailLogListResponse,
 )
 from app.schemas.recipient import (
+    RecipientDetail,
     RecipientItem,
     RecipientListResponse,
     SendOptions,
@@ -36,6 +37,7 @@ from app.services.campaign_service import (
     delete_campaign,
     ensure_can_send,
     get_campaign_or_404,
+    get_campaign_recipient_or_404,
     get_campaign_recipients,
     latest_campaign_error,
     list_campaigns,
@@ -197,6 +199,32 @@ def export_campaign_recipients(
         headers={
             "Content-Disposition": f'attachment; filename="campaign_{campaign.id}_recipients.csv"',
         },
+    )
+
+
+@router.get(
+    "/{campaign_id}/recipients/{recipient_id}",
+    response_model=RecipientDetail,
+    dependencies=[Depends(rate_limit(60, 60))],
+)
+def get_campaign_recipient(
+    campaign_id: uuid.UUID,
+    recipient_id: int,
+    db: Session = Depends(get_db),
+) -> RecipientDetail:
+    """Retrieve detailed delivery information for a single campaign recipient."""
+    get_campaign_or_404(db, campaign_id)
+    recipient = get_campaign_recipient_or_404(db, campaign_id, recipient_id)
+    status_value = (
+        recipient.status.value if isinstance(recipient.status, RecipientStatus) else str(recipient.status)
+    )
+    return RecipientDetail(
+        id=recipient.id,
+        email=recipient.email,
+        name=recipient.name,
+        status=status_value,
+        error_message=recipient.error_message,
+        sent_at=recipient.sent_at,
     )
 
 

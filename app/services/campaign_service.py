@@ -79,6 +79,26 @@ def get_campaign_or_404(db: Session, campaign_id: uuid.UUID) -> Campaign:
     return campaign
 
 
+def get_campaign_recipient_or_404(db: Session, campaign_id: uuid.UUID, recipient_id: int) -> Recipient:
+    """Retrieve a recipient by ID scoped to a campaign or raise a 404.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign_id: Target campaign UUID.
+        recipient_id: Recipient integer identifier.
+
+    Returns:
+        The matching Recipient object.
+
+    Raises:
+        HTTPException: 404 NOT FOUND if recipient is missing or belongs to another campaign.
+    """
+    recipient = db.get(Recipient, recipient_id)
+    if not recipient or recipient.campaign_id != campaign_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient not found for campaign.")
+    return recipient
+
+
 def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]]) -> int:
     """Bulk insert recipient records for a campaign and update recipient total.
 

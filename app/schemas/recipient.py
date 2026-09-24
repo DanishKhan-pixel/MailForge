@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -39,6 +41,17 @@ class RecipientListResponse(BaseModel):
     page: int = Field(..., description="Current page number")
     page_size: int = Field(..., description="Page size limit")
     total: int = Field(..., description="Total count of recipients")
+
+
+class RecipientDetail(BaseModel):
+    """Detailed schema for an individual campaign recipient record."""
+
+    id: int = Field(..., description="Recipient identifier")
+    email: EmailStr = Field(..., description="Recipient email address")
+    name: str | None = Field(default=None, description="Optional recipient display name")
+    status: str = Field(..., description="Current recipient delivery status")
+    error_message: str | None = Field(default=None, description="Error message from last failed attempt")
+    sent_at: datetime | None = Field(default=None, description="Timestamp of successful delivery")
 
 
 class EmailPayload(BaseModel):
