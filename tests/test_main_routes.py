@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import OperationalError
 
 from app.core.config import settings
+from app.db.session import get_db
 from app.main import app
 from app.schemas.common import HealthResponse
 
@@ -33,6 +37,31 @@ def test_health_check_matches_health_response_schema() -> None:
     response = client.get("/health")
     payload = HealthResponse.model_validate(response.json())
     assert payload.status == "ok"
+
+
+def test_readiness_probe_returns_ready_when_database_reachable() -> None:
+    db = MagicMock()
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get("/ready")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ready"}
+
+
+def test_readiness_probe_returns_503_when_database_unreachable() -> None:
+    db = MagicMock()
+    db.execute.side_effect = OperationalError("SELECT 1", {}, None)
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get("/ready")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Database unavailable."}
 
 
 def test_app_metadata_follows_settings() -> None:
