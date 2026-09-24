@@ -147,3 +147,43 @@ def test_rate_limit_reports_zero_remaining_at_capacity() -> None:
 
     with pytest.raises(HTTPException):
         limiter(request, Response())
+
+
+def test_rate_limit_attaches_retry_after_header_on_429() -> None:
+    limiter = rate_limit(max_requests=2, window_seconds=60)
+    request = MagicMock(spec=Request)
+    request.client.host = "10.1.0.3"
+
+    limiter(request, Response())
+    limiter(request, Response())
+
+    with pytest.raises(HTTPException) as exc_info:
+        limiter(request, Response())
+
+    retry_after = exc_info.value.headers["Retry-After"]
+    assert int(retry_after) >= 1
+    assert int(retry_after) <= 60
+
+
+def test_rate_limit_retry_after_shrinks_as_window_elapses(monkeypatch) -> None:
+    import importlib
+
+    rate_limit_module = importlib.import_module("app.core.rate_limit")
+
+    timestamps = [100.0, 100.0]
+    monkeypatch.setattr(rate_limit_module.time, "time", lambda: timestamps[0])
+
+    limiter = rate_limit(max_requests=2, window_seconds=60)
+    request = MagicMock(spec=Request)
+    request.client.host = "10.1.0.4"
+
+    limiter(request, Response())
+    limiter(request, Response())
+
+    monkeypatch.setattr(rate_limit_module.time, "time", lambda: timestamps[1])
+    timestamps[1] = 145.0
+
+    with pytest.raises(HTTPException) as exc_info:
+        limiter(request, Response())
+
+    assert exc_info.value.headers["Retry-After"] == "15"
