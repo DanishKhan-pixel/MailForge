@@ -23,6 +23,23 @@ class CampaignCreate(BaseModel):
         return sanitize_subject(value)
 
 
+class CampaignUpdate(BaseModel):
+    """Optional patch fields for updating an existing campaign."""
+
+    subject: str | None = Field(default=None, min_length=1, max_length=200, description="Updated email subject line")
+    message: str | None = Field(
+        default=None, min_length=1, max_length=10000, description="Updated email message template text"
+    )
+
+    @field_validator("subject", mode="before")
+    @classmethod
+    def _sanitize_subject(cls, value: str | None) -> str | None:
+        """Reject line breaks in subject lines to prevent SMTP header injection."""
+        if value is None:
+            return None
+        return sanitize_subject(value)
+
+
 class CampaignResponse(BaseModel):
     """Response structure for campaign data."""
 

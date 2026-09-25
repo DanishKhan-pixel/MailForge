@@ -37,6 +37,34 @@ def create_campaign(db: Session, subject: str, message: str) -> Campaign:
     return campaign
 
 
+def update_campaign(
+    db: Session,
+    campaign: Campaign,
+    subject: str | None = None,
+    message: str | None = None,
+) -> Campaign:
+    """Apply optional field updates to an existing campaign.
+
+    Only fields explicitly provided are modified.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign: Target Campaign object to update.
+        subject: Optional new subject line.
+        message: Optional new message template.
+
+    Returns:
+        The updated Campaign object.
+    """
+    if subject is not None:
+        campaign.subject = subject
+    if message is not None:
+        campaign.message = message
+    db.commit()
+    db.refresh(campaign)
+    return campaign
+
+
 def latest_campaign_error(db: Session, campaign_id: uuid.UUID) -> str | None:
     """Retrieve the error message from the most recently failed recipient for a campaign.
 

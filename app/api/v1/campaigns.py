@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,7 @@ from app.schemas.campaign import (
     CampaignResponse,
     CampaignStats,
     CampaignStatusResponse,
+    CampaignUpdate,
     EmailLogItem,
     EmailLogListResponse,
 )
@@ -46,6 +47,7 @@ from app.services.campaign_service import (
     paginate_campaign_logs,
     paginate_campaign_recipients,
     retry_failed_recipients,
+    update_campaign,
     upload_recipients,
 )
 from app.services.csv_service import parse_recipients_csv
@@ -60,6 +62,23 @@ def create_campaign_endpoint(payload: CampaignCreate, db: Session = Depends(get_
     """Create a new email campaign with a subject line and template message."""
     campaign = create_campaign(db, payload.subject, payload.message)
     return CampaignResponse.model_validate(campaign)
+
+
+@router.patch("/{campaign_id}", response_model=CampaignResponse, dependencies=[Depends(rate_limit(20, 60))])
+def update_campaign_endpoint(
+    campaign_id: uuid.UUID,
+    payload: CampaignUpdate,
+    db: Session = Depends(get_db),
+) -> CampaignResponse:
+    """Update the subject or message of an existing campaign."""
+    campaign = get_campaign_or_404(db, campaign_id)
+    if campaign.status == CampaignStatus.running:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot update campaign while it is running.",
+        )
+    updated = update_campaign(db, campaign, subject=payload.subject, message=payload.message)
+    return CampaignResponse.model_validate(updated)
 
 
 @router.post(
