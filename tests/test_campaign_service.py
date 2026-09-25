@@ -75,6 +75,21 @@ def test_paginate_campaign_logs_empty_campaign() -> None:
     assert items == []
 
 
+def test_paginate_campaign_logs_filters_by_status() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.scalar.return_value = 3
+    db.scalars.return_value.all.return_value = [MagicMock()]
+
+    items, total = paginate_campaign_logs(db, cid, page=1, page_size=20, status_filter="failed")
+
+    assert total == 3
+    assert len(items) == 1
+    select_call = db.scalars.call_args.args[0]
+    compiled = str(select_call.compile(compile_kwargs={"literal_binds": True}))
+    assert "failed" in compiled
+
+
 def test_retry_failed_recipients_resets_failed_rows() -> None:
     cid = uuid.uuid4()
     campaign = MagicMock(spec=Campaign)

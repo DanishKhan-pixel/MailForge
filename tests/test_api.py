@@ -397,6 +397,33 @@ def test_list_campaign_logs_missing_campaign_returns_404() -> None:
     assert response.status_code == 404
 
 
+def test_list_campaign_logs_supports_status_filter() -> None:
+    cid = uuid.uuid4()
+    log = MagicMock()
+    log.id = 44
+    log.recipient_id = 7
+    log.recipient.email = "alice@example.com"
+    log.status = "failed"
+    log.response = "Connection refused"
+    log.timestamp = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalar.return_value = 1
+    db.scalars.return_value.all.return_value = [log]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/logs?status=failed")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 1
+    assert payload["items"][0]["status"] == "failed"
+    assert payload["items"][0]["response"] == "Connection refused"
+
+
 def test_get_campaign_recipient_returns_details() -> None:
     cid = uuid.uuid4()
     recipient = MagicMock()
