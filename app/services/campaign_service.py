@@ -154,6 +154,26 @@ def retry_failed_recipients(db: Session, campaign: Campaign) -> int:
     return len(failed_recipients)
 
 
+def delete_campaign_recipient(db: Session, campaign: Campaign, recipient: Recipient) -> None:
+    """Remove a recipient from a campaign and reconcile aggregate counters.
+
+    The campaign recipient total and the matching sent/failed tally are
+    decremented so progress telemetry stays consistent after removal.
+
+    Args:
+        db: Active SQLAlchemy database session.
+        campaign: Parent Campaign object.
+        recipient: Recipient record to delete.
+    """
+    if recipient.status == RecipientStatus.sent:
+        campaign.sent_count = max(campaign.sent_count - 1, 0)
+    elif recipient.status == RecipientStatus.failed:
+        campaign.failed_count = max(campaign.failed_count - 1, 0)
+    campaign.total_emails = max(campaign.total_emails - 1, 0)
+    db.delete(recipient)
+    db.commit()
+
+
 def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]]) -> int:
     """Bulk insert recipient records for a campaign and update recipient total.
 

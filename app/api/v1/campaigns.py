@@ -37,6 +37,7 @@ from app.services.campaign_service import (
     campaign_status_payload,
     create_campaign,
     delete_campaign,
+    delete_campaign_recipient,
     ensure_can_send,
     get_campaign_or_404,
     get_campaign_recipient_or_404,
@@ -247,6 +248,22 @@ def get_campaign_recipient(
         error_message=recipient.error_message,
         sent_at=recipient.sent_at,
     )
+
+
+@router.delete(
+    "/{campaign_id}/recipients/{recipient_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(rate_limit(20, 60))],
+)
+def delete_campaign_recipient_endpoint(
+    campaign_id: uuid.UUID,
+    recipient_id: int,
+    db: Session = Depends(get_db),
+) -> None:
+    """Delete a single recipient from a campaign and reconcile counters."""
+    campaign = get_campaign_or_404(db, campaign_id)
+    recipient = get_campaign_recipient_or_404(db, campaign_id, recipient_id)
+    delete_campaign_recipient(db, campaign, recipient)
 
 
 @router.post(
