@@ -285,17 +285,25 @@ def delete_campaign(db: Session, campaign: Campaign) -> None:
     db.commit()
 
 
-def get_campaign_recipients(db: Session, campaign_id: uuid.UUID) -> list[Recipient]:
+def get_campaign_recipients(
+    db: Session,
+    campaign_id: uuid.UUID,
+    status_filter: str | None = None,
+) -> list[Recipient]:
     """Retrieve all recipient records associated with a campaign.
 
     Args:
         db: Active SQLAlchemy database session.
         campaign_id: Target campaign UUID.
+        status_filter: Optional recipient status filter string.
 
     Returns:
         List of Recipient objects belonging to the campaign.
     """
-    query = select(Recipient).where(Recipient.campaign_id == campaign_id).order_by(Recipient.id.asc())
+    conditions = [Recipient.campaign_id == campaign_id]
+    if status_filter:
+        conditions.append(Recipient.status == status_filter)
+    query = select(Recipient).where(*conditions).order_by(Recipient.id.asc())
     return list(db.scalars(query).all())
 
 

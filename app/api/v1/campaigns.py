@@ -209,11 +209,12 @@ def list_campaign_recipients(
 )
 def export_campaign_recipients(
     campaign_id: uuid.UUID,
+    status: RecipientStatus | None = Query(None),
     db: Session = Depends(get_db),
 ) -> Response:
-    """Download the full recipient list for a campaign as a CSV file."""
+    """Download the recipient list for a campaign as a CSV file."""
     campaign = get_campaign_or_404(db, campaign_id)
-    recipients = get_campaign_recipients(db, campaign_id)
+    recipients = get_campaign_recipients(db, campaign_id, status.value if status else None)
     csv_content = build_recipients_csv(recipients)
     return Response(
         content=csv_content,
