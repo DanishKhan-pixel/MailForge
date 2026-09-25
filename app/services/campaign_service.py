@@ -366,6 +366,7 @@ def paginate_campaign_logs(
     campaign_id: uuid.UUID,
     page: int,
     page_size: int,
+    status_filter: str | None = None,
 ) -> tuple[list[EmailLog], int]:
     """Retrieve a paginated slice of email delivery logs for a campaign.
 
@@ -377,17 +378,25 @@ def paginate_campaign_logs(
         campaign_id: Target campaign UUID.
         page: 1-indexed page number.
         page_size: Number of records per page.
+        status_filter: Optional delivery status filter string.
 
     Returns:
         Tuple containing (list of EmailLog objects for the page, total count).
     """
-    base = select(EmailLog).join(Recipient, EmailLog.recipient_id == Recipient.id).where(
-        Recipient.campaign_id == campaign_id
+    conditions = [Recipient.campaign_id == campaign_id]
+    if status_filter:
+        conditions.append(EmailLog.status == status_filter)
+    total = db.scalar(
+        select(func.count(EmailLog.id)).join(Recipient, EmailLog.recipient_id == Recipient.id).where(*conditions)
+    ) or 0
+    query = (
+        select(EmailLog)
+        .join(Recipient, EmailLog.recipient_id == Recipient.id)
+        .where(*conditions)
+        .order_by(EmailLog.timestamp.desc(), EmailLog.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
     )
-    total = db.scalar(select(func.count(EmailLog.id)).join(Recipient, EmailLog.recipient_id == Recipient.id).where(
-        Recipient.campaign_id == campaign_id
-    )) or 0
-    query = base.order_by(EmailLog.timestamp.desc(), EmailLog.id.desc()).offset((page - 1) * page_size).limit(page_size)
     return list(db.scalars(query).all()), total
 
 

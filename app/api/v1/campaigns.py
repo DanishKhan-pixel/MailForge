@@ -292,11 +292,12 @@ def list_campaign_logs(
     campaign_id: uuid.UUID,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    status: str | None = Query(None, description="Optional delivery status filter (sent or failed)"),
     db: Session = Depends(get_db),
 ) -> EmailLogListResponse:
     """List paginated email delivery log records for a specific campaign."""
     get_campaign_or_404(db, campaign_id)
-    logs, total = paginate_campaign_logs(db, campaign_id, page, page_size)
+    logs, total = paginate_campaign_logs(db, campaign_id, page, page_size, status)
     return EmailLogListResponse(
         items=[
             EmailLogItem(
