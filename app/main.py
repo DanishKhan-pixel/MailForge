@@ -13,7 +13,7 @@ from app.api.v1.campaigns import router as campaigns_router
 from app.api.v1.emails import router as emails_router
 from app.core.config import settings
 from app.core.logging import configure_logging
-from app.core.middleware import RequestLoggingMiddleware
+from app.core.middleware import RequestIdMiddleware, RequestLoggingMiddleware
 from app.db.session import get_db
 from app.schemas.common import HealthResponse, ReadyResponse
 
@@ -33,6 +33,7 @@ app = FastAPI(
 )
 
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(RequestIdMiddleware)
 
 
 app.include_router(campaigns_router)
