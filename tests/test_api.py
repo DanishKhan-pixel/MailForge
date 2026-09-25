@@ -6,14 +6,21 @@ import uuid
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
+import pytest
 from fastapi.testclient import TestClient
 
+from app.core.rate_limit import reset_rate_limits
 from app.db.models import CampaignStatus, RecipientStatus
 from app.db.session import get_db
 from app.main import app
 from app.schemas.recipient import RecipientItem
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _clear_rate_limits() -> None:
+    reset_rate_limits()
 
 
 def test_health_check_endpoint() -> None:
@@ -532,3 +539,100 @@ def test_throttled_endpoint_returns_429_with_retry_after(monkeypatch) -> None:
     assert responses[0].headers["X-RateLimit-Limit"] == "20"
     assert responses[-1].status_code == 429
     assert int(responses[-1].headers["Retry-After"]) >= 1
+
+
+def test_update_campaign_endpoint_updates_subject_and_message() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.subject = "Old"
+    campaign.message = "Old body"
+    campaign.status = CampaignStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.patch(f"/campaigns/{cid}", json={"subject": "New", "message": "New body"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert campaign.subject == "New"
+    assert campaign.message == "New body"
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(campaign)
+
+
+def test_update_campaign_endpoint_partial_update() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.subject = "Keep"
+    campaign.message = "Old body"
+    campaign.status = CampaignStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.patch(f"/campaigns/{cid}", json={"message": "New body"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert campaign.subject == "Keep"
+    assert campaign.message == "New body"
+
+
+def test_update_campaign_endpoint_running_campaign_returns_409() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.status = CampaignStatus.running
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.patch(f"/campaigns/{cid}", json={"subject": "New"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 409
+    db.commit.assert_not_called()
+
+
+def test_update_campaign_endpoint_missing_campaign_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = None
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.patch(f"/campaigns/{cid}", json={"subject": "New"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+
+
+def test_update_campaign_endpoint_sanitizes_line_break_subject() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.status = CampaignStatus.pending
+    campaign.subject = "Old"
+    campaign.message = "Body"
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.patch(f"/campaigns/{cid}", json={"subject": "Hello\nCC: evil@example.com"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert campaign.subject == "Hello CC: evil@example.com"
+    assert "\n" not in campaign.subject
+    assert "\r" not in campaign.subject
