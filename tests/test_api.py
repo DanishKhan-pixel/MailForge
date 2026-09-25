@@ -636,3 +636,48 @@ def test_update_campaign_endpoint_sanitizes_line_break_subject() -> None:
     assert campaign.subject == "Hello CC: evil@example.com"
     assert "\n" not in campaign.subject
     assert "\r" not in campaign.subject
+
+
+def test_delete_campaign_recipient_endpoint_returns_204() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 10
+    campaign.sent_count = 4
+    campaign.failed_count = 1
+
+    recipient = MagicMock()
+    recipient.id = 7
+    recipient.campaign_id = cid
+    recipient.status = RecipientStatus.sent
+
+    db = MagicMock()
+    db.get.side_effect = [campaign, recipient]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.delete(f"/campaigns/{cid}/recipients/7")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 204
+    db.delete.assert_called_once_with(recipient)
+    db.commit.assert_called_once()
+    assert campaign.total_emails == 9
+    assert campaign.sent_count == 3
+
+
+def test_delete_campaign_recipient_missing_recipient_returns_404() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+
+    db = MagicMock()
+    db.get.side_effect = [campaign, None]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.delete(f"/campaigns/{cid}/recipients/7")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+    db.delete.assert_not_called()

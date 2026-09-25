@@ -13,6 +13,7 @@ from app.db.models import Campaign, CampaignStatus, EmailLog, Recipient, Recipie
 from app.services.campaign_service import (
     build_recipients_csv,
     campaign_status_payload,
+    delete_campaign_recipient,
     ensure_can_send,
     paginate_campaign_logs,
     retry_failed_recipients,
@@ -109,6 +110,44 @@ def test_retry_failed_recipients_noop_when_none_failed() -> None:
 
     assert retry_failed_recipients(db, campaign) == 0
     db.commit.assert_called_once()
+
+
+def test_delete_campaign_recipient_decrements_sent_counter() -> None:
+    campaign = MagicMock(spec=Campaign)
+    campaign.total_emails = 10
+    campaign.sent_count = 4
+    campaign.failed_count = 1
+
+    recipient = MagicMock(spec=Recipient)
+    recipient.status = RecipientStatus.sent
+
+    db = MagicMock()
+
+    delete_campaign_recipient(db, campaign, recipient)
+
+    db.delete.assert_called_once_with(recipient)
+    db.commit.assert_called_once()
+    assert campaign.total_emails == 9
+    assert campaign.sent_count == 3
+    assert campaign.failed_count == 1
+
+
+def test_delete_campaign_recipient_decrements_failed_counter() -> None:
+    campaign = MagicMock(spec=Campaign)
+    campaign.total_emails = 5
+    campaign.sent_count = 0
+    campaign.failed_count = 2
+
+    recipient = MagicMock(spec=Recipient)
+    recipient.status = RecipientStatus.failed
+
+    db = MagicMock()
+
+    delete_campaign_recipient(db, campaign, recipient)
+
+    assert campaign.total_emails == 4
+    assert campaign.failed_count == 1
+    assert campaign.sent_count == 0
 
 
 def test_campaign_status_payload_calculation() -> None:
