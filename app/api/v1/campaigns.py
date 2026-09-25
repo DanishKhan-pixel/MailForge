@@ -187,12 +187,18 @@ def list_campaign_recipients(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     status: RecipientStatus | None = Query(None),
+    search: str | None = Query(None, max_length=200, description="Keyword to match against email or name"),
     db: Session = Depends(get_db),
 ) -> RecipientListResponse:
     """List paginated recipient records registered for a specific campaign."""
     get_campaign_or_404(db, campaign_id)
     recipients, total = paginate_campaign_recipients(
-        db, campaign_id, page, page_size, status.value if status else None
+        db,
+        campaign_id,
+        page,
+        page_size,
+        status.value if status else None,
+        search,
     )
     return RecipientListResponse(
         items=[RecipientItem(email=recipient.email, name=recipient.name) for recipient in recipients],

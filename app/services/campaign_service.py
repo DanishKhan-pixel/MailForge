@@ -8,7 +8,7 @@ import logging
 import uuid
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -348,11 +348,13 @@ def paginate_campaign_recipients(
     page: int,
     page_size: int,
     status_filter: str | None = None,
+    search: str | None = None,
 ) -> tuple[list[Recipient], int]:
     """Retrieve a paginated slice of recipients for a campaign with the total matching count.
 
-    Pagination and optional status filtering are applied at the database level to
-    avoid loading the full recipient list into memory for large campaigns.
+    Pagination, optional status filtering, and keyword search are applied at the
+    database level to avoid loading the full recipient list into memory for large
+    campaigns.
 
     Args:
         db: Active SQLAlchemy database session.
@@ -360,6 +362,7 @@ def paginate_campaign_recipients(
         page: 1-indexed page number.
         page_size: Number of records to return per page.
         status_filter: Optional recipient status filter string.
+        search: Optional keyword matched against recipient email or name.
 
     Returns:
         Tuple containing (list of Recipient objects for the page, total matching count).
@@ -367,6 +370,9 @@ def paginate_campaign_recipients(
     conditions = [Recipient.campaign_id == campaign_id]
     if status_filter:
         conditions.append(Recipient.status == status_filter)
+    if search:
+        term = f"%{search.strip()}%"
+        conditions.append(or_(Recipient.email.ilike(term), Recipient.name.ilike(term)))
     total = db.scalar(select(func.count(Recipient.id)).where(*conditions)) or 0
     query = (
         select(Recipient)
