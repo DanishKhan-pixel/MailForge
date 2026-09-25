@@ -333,6 +333,48 @@ def test_upload_recipients_single_chunk_for_small_batch() -> None:
     assert db.flush.call_count == 1
 
 
+def test_upload_recipients_skips_duplicate_emails_on_conflict() -> None:
+    from sqlalchemy.exc import IntegrityError
+
+    from app.services.campaign_service import upload_recipients
+
+    rows = [{"email": "dup@example.com", "name": "D"}, {"email": "new@example.com", "name": "N"}]
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.total_emails = 5
+    db = MagicMock()
+
+    conflict = IntegrityError("INSERT", {}, Exception("duplicate key"))
+    db.flush.side_effect = [conflict, None, conflict]
+
+    count = upload_recipients(db, campaign, rows)
+
+    assert count == 1
+    assert campaign.total_emails == 6
+    db.commit.assert_called_once()
+
+
+def test_upload_recipients_all_duplicates_are_noop() -> None:
+    from sqlalchemy.exc import IntegrityError
+
+    from app.services.campaign_service import upload_recipients
+
+    rows = [{"email": "dup1@example.com", "name": None}, {"email": "dup2@example.com", "name": None}]
+    campaign = MagicMock(spec=Campaign)
+    campaign.id = uuid.uuid4()
+    campaign.total_emails = 4
+    db = MagicMock()
+
+    conflict = IntegrityError("INSERT", {}, Exception("duplicate key"))
+    db.flush.side_effect = [conflict, conflict, conflict]
+
+    count = upload_recipients(db, campaign, rows)
+
+    assert count == 0
+    assert campaign.total_emails == 4
+    db.commit.assert_called_once()
+
+
 def test_campaign_status_payload_truncates_long_last_error() -> None:
     long_error = "E" * 1000
     campaign = MagicMock(spec=Campaign)
