@@ -9,6 +9,7 @@ import uuid
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db.models import Campaign, CampaignStatus, EmailLog, Recipient, RecipientStatus
@@ -178,7 +179,9 @@ def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]
     """Bulk insert recipient records for a campaign and update recipient total.
 
     Rows are inserted in bounded chunks and flushed incrementally so large CSV
-    uploads do not grow the session identity map without limit.
+    uploads do not grow the session identity map without limit. Rows whose email
+    is already registered for the campaign are skipped instead of failing the
+    whole upload, thanks to the unique (campaign_id, email) constraint.
 
     Args:
         db: Active SQLAlchemy database session.
@@ -186,15 +189,29 @@ def upload_recipients(db: Session, campaign: Campaign, rows: list[dict[str, str]
         rows: List of recipient dictionaries containing 'email' and optional 'name'.
 
     Returns:
-        Count of recipients added.
+        Count of newly added recipients.
     """
+    added = 0
     for chunk in chunk_list(rows, RECIPIENT_UPLOAD_CHUNK_SIZE):
-        recipients = [Recipient(campaign_id=campaign.id, email=row["email"], name=row["name"] or None) for row in chunk]
-        db.add_all(recipients)
-        db.flush()
-    campaign.total_emails = campaign.total_emails + len(rows)
+        recipients = [
+            Recipient(campaign_id=campaign.id, email=row["email"], name=row["name"] or None) for row in chunk
+        ]
+        try:
+            db.add_all(recipients)
+            db.flush()
+            added += len(chunk)
+        except IntegrityError:
+            db.rollback()
+            for row in chunk:
+                db.add(Recipient(campaign_id=campaign.id, email=row["email"], name=row["name"] or None))
+                try:
+                    db.flush()
+                    added += 1
+                except IntegrityError:
+                    db.rollback()
+    campaign.total_emails = campaign.total_emails + added
     db.commit()
-    return len(rows)
+    return added
 
 
 def list_campaigns(
