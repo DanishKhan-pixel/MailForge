@@ -263,6 +263,41 @@ def test_paginate_campaign_recipients_filters_by_status() -> None:
     assert "sent" in compiled
 
 
+def test_paginate_campaign_recipients_searches_email_and_name() -> None:
+    from app.services.campaign_service import paginate_campaign_recipients
+
+    db = MagicMock()
+    db.scalar.return_value = 3
+    db.scalars.return_value.all.return_value = [MagicMock()]
+
+    cid = uuid.uuid4()
+    items, total = paginate_campaign_recipients(db, cid, page=1, page_size=20, search="ali")
+
+    assert total == 3
+    assert len(items) == 1
+    select_call = db.scalars.call_args.args[0]
+    compiled = str(select_call.compile(compile_kwargs={"literal_binds": True}))
+    assert "LIKE" in compiled
+    assert "%ali%" in compiled
+
+
+def test_paginate_campaign_recipients_combines_search_and_status() -> None:
+    from app.services.campaign_service import paginate_campaign_recipients
+
+    db = MagicMock()
+    db.scalar.return_value = 1
+    db.scalars.return_value.all.return_value = [MagicMock()]
+
+    cid = uuid.uuid4()
+    items, total = paginate_campaign_recipients(db, cid, page=1, page_size=20, status_filter="sent", search="bo")
+
+    assert total == 1
+    select_call = db.scalars.call_args.args[0]
+    compiled = str(select_call.compile(compile_kwargs={"literal_binds": True}))
+    assert "sent" in compiled
+    assert "%bo%" in compiled
+
+
 def test_delete_campaign_removes_and_commits() -> None:
     from app.services.campaign_service import delete_campaign
 

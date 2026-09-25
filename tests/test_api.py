@@ -181,6 +181,26 @@ def test_list_campaign_recipients_accepts_status_filter() -> None:
     assert response.json()["total"] == 1
 
 
+def test_list_campaign_recipients_accepts_search_term() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = MagicMock()
+    db.scalar.return_value = 1
+    db.scalars.return_value.all.return_value = [
+        RecipientItem(email="alice@example.com", name="Alice"),
+    ]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients?search=alic")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 1
+    assert payload["items"][0]["email"] == "alice@example.com"
+
+
 def test_list_campaign_recipients_rejects_invalid_status_filter() -> None:
     cid = uuid.uuid4()
     db = MagicMock()
