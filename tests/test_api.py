@@ -681,3 +681,44 @@ def test_delete_campaign_recipient_missing_recipient_returns_404() -> None:
 
     assert response.status_code == 404
     db.delete.assert_not_called()
+
+
+def test_export_campaign_recipients_supports_status_filter() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+
+    failed = MagicMock()
+    failed.email = "bob@example.com"
+    failed.name = None
+    failed.status = RecipientStatus.failed
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    db.scalars.return_value.all.return_value = [failed]
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/export?status=failed")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    lines = response.text.strip().splitlines()
+    assert lines[0] == "email,name,status"
+    assert "bob@example.com,,failed" in lines
+    assert len(lines) == 2
+
+
+def test_export_campaign_recipients_rejects_invalid_status_filter() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.get(f"/campaigns/{cid}/recipients/export?status=bogus")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 422
