@@ -588,6 +588,93 @@ def test_throttled_endpoint_returns_429_with_retry_after(monkeypatch) -> None:
     assert int(responses[-1].headers["Retry-After"]) >= 1
 
 
+def test_send_campaign_endpoint_no_recipients_returns_400() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 0
+    campaign.status = CampaignStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/send", json={})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 400
+    assert "Upload recipients" in response.json()["detail"]
+
+
+def test_send_campaign_endpoint_running_campaign_returns_409() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 3
+    campaign.status = CampaignStatus.running
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/send", json={})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 409
+    assert "already running" in response.json()["detail"]
+
+
+def test_send_campaign_endpoint_missing_campaign_returns_404() -> None:
+    cid = uuid.uuid4()
+    db = MagicMock()
+    db.get.return_value = None
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/send", json={})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+
+
+def test_retry_failed_recipients_no_recipients_returns_400() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.total_emails = 0
+    campaign.status = CampaignStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.post(f"/campaigns/{cid}/recipients/retry")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 400
+
+
+def test_update_campaign_endpoint_rejects_empty_subject() -> None:
+    cid = uuid.uuid4()
+    campaign = MagicMock()
+    campaign.id = cid
+    campaign.status = CampaignStatus.pending
+
+    db = MagicMock()
+    db.get.return_value = campaign
+    app.dependency_overrides[get_db] = lambda: db
+    try:
+        response = client.patch(f"/campaigns/{cid}", json={"subject": ""})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 422
+    db.commit.assert_not_called()
+
+
 def test_update_campaign_endpoint_updates_subject_and_message() -> None:
     cid = uuid.uuid4()
     campaign = MagicMock()
