@@ -37,3 +37,20 @@ def sanitize_subject(subject: str) -> str:
         return ""
     clean = subject.replace("\r", "").replace("\n", " ").strip()
     return " ".join(clean.split())
+
+
+def strip_html_tags(text: str) -> str:
+    """Remove HTML tags from a text string and return plain text.
+
+    Args:
+        text: Raw text or HTML input string.
+
+    Returns:
+        Clean plain text with tags stripped.
+    """
+    if not text:
+        return ""
+    import re
+
+    clean = re.sub(r"<[^>]*>", "", text)
+    return " ".join(clean.split())
