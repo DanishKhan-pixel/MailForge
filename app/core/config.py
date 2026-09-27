@@ -63,6 +63,11 @@ class Settings(BaseSettings):
         """Check if application operates in debug mode (alias for development mode)."""
         return self.is_development
 
+    @property
+    def is_testing(self) -> bool:
+        """Check if application is running in test mode."""
+        return self.app_env.lower() in ("test", "testing")
+
 
 
 
