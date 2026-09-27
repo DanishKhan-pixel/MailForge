@@ -35,3 +35,12 @@ def test_sanitize_subject() -> None:
     assert sanitize_subject("Hello\r\nWorld!\n\n") == "Hello World!"
     assert sanitize_subject("") == ""
     assert sanitize_subject(None) == ""
+
+
+def test_strip_html_tags() -> None:
+    from app.utils.string_utils import strip_html_tags
+
+    assert strip_html_tags("<p>Hello <b>World</b>!</p>") == "Hello World!"
+    assert strip_html_tags("Plain text") == "Plain text"
+    assert strip_html_tags("") == ""
+    assert strip_html_tags(None) == ""
