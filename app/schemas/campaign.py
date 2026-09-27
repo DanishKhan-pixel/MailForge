@@ -116,3 +116,12 @@ class EmailLogListResponse(BaseModel):
     total: int = Field(..., description="Total count of email log records")
 
 
+class CampaignSummaryStats(BaseModel):
+    """Detailed status breakdown summary schema for system campaigns."""
+
+    total: int = Field(default=0, ge=0, description="Total number of campaigns")
+    pending: int = Field(default=0, ge=0, description="Count of pending campaigns")
+    running: int = Field(default=0, ge=0, description="Count of active running campaigns")
+    completed: int = Field(default=0, ge=0, description="Count of completed campaigns")
+
+
