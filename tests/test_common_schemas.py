@@ -32,6 +32,15 @@ def test_error_detail_schema() -> None:
     assert err_with_code.code == "RATE_LIMIT_EXCEEDED"
 
 
+def test_api_status_response_schema() -> None:
+    from app.schemas.common import ApiStatusResponse
+
+    status_resp = ApiStatusResponse(app_name="MailForge", version="2.0.0", environment="production")
+    assert status_resp.app_name == "MailForge"
+    assert status_resp.version == "2.0.0"
+    assert status_resp.environment == "production"
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
