@@ -140,6 +140,11 @@ The test suite covers:
 - **Chunked Recipient Upload**: Recipient rows bulk-inserted in bounded chunks.
 - **Configurable SMTP & Logging**: SMTP timeout, log directory, and log file name via settings.
 - **Database Uniqueness**: Case-insensitive unique index on campaign recipient emails.
+- **HTML Sanitization**: HTML tag stripping utility (`strip_html_tags`) for plain text email conversion.
+- **Campaign Breakdown Schemas**: Detailed status breakdown schema model (`CampaignSummaryStats`) for dashboard telemetry.
+- **Service Summary Aggregations**: Helper function (`get_campaign_summary_counts`) computing campaign status tallies.
+- **Test Environment Property**: Environment setting flag (`is_testing`) identifying active test executions.
+- **API Overview Response Schema**: System runtime overview response schema (`ApiStatusResponse`).
 
 
 
