@@ -45,3 +45,16 @@ def test_campaign_stats_schema() -> None:
 
     with pytest.raises(ValidationError):
         CampaignStats(total_campaigns=-1)
+
+
+def test_campaign_summary_stats_schema() -> None:
+    from app.schemas.campaign import CampaignSummaryStats
+
+    summary = CampaignSummaryStats(total=10, pending=2, running=3, completed=5)
+    assert summary.total == 10
+    assert summary.pending == 2
+    assert summary.running == 3
+    assert summary.completed == 5
+
+    with pytest.raises(ValidationError):
+        CampaignSummaryStats(pending=-1)
