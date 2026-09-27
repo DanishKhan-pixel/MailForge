@@ -449,4 +449,18 @@ def test_format_campaign_summary() -> None:
     assert "Total: 50" in summary
 
 
+def test_get_campaign_summary_counts() -> None:
+    from app.services.campaign_service import get_campaign_summary_counts
+
+    db = MagicMock()
+    db.scalar.side_effect = [10, 2, 3, 5]
+
+    counts = get_campaign_summary_counts(db)
+
+    assert counts["total"] == 10
+    assert counts["pending"] == 2
+    assert counts["running"] == 3
+    assert counts["completed"] == 5
+
+
 
