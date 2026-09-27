@@ -35,3 +35,11 @@ class ErrorDetail(BaseModel):
 
     detail: str = Field(..., description="Error message details describing the failure")
     code: str | None = Field(default=None, description="Optional error code indicator")
+
+
+class ApiStatusResponse(BaseModel):
+    """System overview runtime status response schema."""
+
+    app_name: str = Field(..., description="Application service name")
+    version: str = Field(..., description="Application semantic version")
+    environment: str = Field(..., description="Active runtime environment")
