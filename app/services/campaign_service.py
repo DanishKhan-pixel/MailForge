@@ -471,4 +471,25 @@ def aggregate_campaign_stats(db: Session) -> dict[str, int]:
     }
 
 
+def get_campaign_summary_counts(db: Session) -> dict[str, int]:
+    """Compute counts of campaigns grouped by status.
+
+    Args:
+        db: Active SQLAlchemy database session.
+
+    Returns:
+        Dictionary mapping total and status keys to integer counts.
+    """
+    total = db.scalar(select(func.count(Campaign.id))) or 0
+    pending = db.scalar(select(func.count(Campaign.id)).where(Campaign.status == CampaignStatus.pending)) or 0
+    running = db.scalar(select(func.count(Campaign.id)).where(Campaign.status == CampaignStatus.running)) or 0
+    completed = db.scalar(select(func.count(Campaign.id)).where(Campaign.status == CampaignStatus.completed)) or 0
+    return {
+        "total": total,
+        "pending": pending,
+        "running": running,
+        "completed": completed,
+    }
+
+
 
