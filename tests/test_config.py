@@ -53,6 +53,17 @@ def test_is_debug_property() -> None:
     assert prod_settings.is_debug is False
 
 
+def test_is_testing_property() -> None:
+    test_settings = Settings(app_env="testing")
+    assert test_settings.is_testing is True
+
+    test_short = Settings(app_env="test")
+    assert test_short.is_testing is True
+
+    dev_settings = Settings(app_env="development")
+    assert dev_settings.is_testing is False
+
+
 
 
 
