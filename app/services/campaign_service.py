@@ -492,4 +492,16 @@ def get_campaign_summary_counts(db: Session) -> dict[str, int]:
     }
 
 
+def is_empty_campaign(campaign: Campaign) -> bool:
+    """Check if a campaign has zero recipients registered.
+
+    Args:
+        campaign: Target Campaign object.
+
+    Returns:
+        True if total_emails is 0, False otherwise.
+    """
+    return campaign.total_emails == 0
+
+
 
