@@ -43,3 +43,13 @@ class ApiStatusResponse(BaseModel):
     app_name: str = Field(..., description="Application service name")
     version: str = Field(..., description="Application semantic version")
     environment: str = Field(..., description="Active runtime environment")
+
+
+class SystemInfoResponse(BaseModel):
+    """Detailed environment and infrastructure telemetry response schema."""
+
+    app_name: str = Field(..., description="Application service name")
+    version: str = Field(..., description="Application semantic version")
+    environment: str = Field(..., description="Active runtime environment")
+    debug: bool = Field(default=False, description="Debug mode indicator")
+    testing: bool = Field(default=False, description="Testing mode indicator")
