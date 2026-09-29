@@ -54,3 +54,21 @@ def strip_html_tags(text: str) -> str:
 
     clean = re.sub(r"<[^>]*>", "", text)
     return " ".join(clean.split())
+
+
+def normalize_email(email: str) -> str:
+    """Normalize email address by stripping whitespace and lowercasing domain.
+
+    Args:
+        email: Raw email address string.
+
+    Returns:
+        Normalized email string with lowercased domain.
+    """
+    if not email:
+        return ""
+    clean = email.strip()
+    if "@" in clean:
+        local_part, domain = clean.rsplit("@", 1)
+        return f"{local_part}@{domain.lower()}"
+    return clean.lower()
