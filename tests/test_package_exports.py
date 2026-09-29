@@ -61,6 +61,7 @@ def test_utils_package_exports() -> None:
     assert hasattr(app.utils, "extract_email_domain")
     assert hasattr(app.utils, "sanitize_subject")
     assert hasattr(app.utils, "strip_html_tags")
+    assert hasattr(app.utils, "normalize_email")
 
 
 
