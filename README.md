@@ -145,6 +145,11 @@ The test suite covers:
 - **Service Summary Aggregations**: Helper function (`get_campaign_summary_counts`) computing campaign status tallies.
 - **Test Environment Property**: Environment setting flag (`is_testing`) identifying active test executions.
 - **API Overview Response Schema**: System runtime overview response schema (`ApiStatusResponse`).
+- **Email Normalization**: Lowercase domain and whitespace stripping utility (`normalize_email`).
+- **Telemetry System Info Schema**: Environment and infrastructure response model (`SystemInfoResponse`).
+- **Local Infra Flag**: Settings property (`is_local`) detecting localhost infrastructure connectivity.
+- **Empty Campaign Validation**: Service helper function (`is_empty_campaign`) detecting unpopulated campaigns.
+- **Batch Deletion Response Schema**: Standardized response model (`BulkDeleteResponse`) for deletion operations.
 
 
 
