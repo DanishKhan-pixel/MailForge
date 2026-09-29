@@ -463,4 +463,16 @@ def test_get_campaign_summary_counts() -> None:
     assert counts["completed"] == 5
 
 
+def test_is_empty_campaign() -> None:
+    from app.services.campaign_service import is_empty_campaign
+
+    empty_campaign = MagicMock(spec=Campaign)
+    empty_campaign.total_emails = 0
+    assert is_empty_campaign(empty_campaign) is True
+
+    populated_campaign = MagicMock(spec=Campaign)
+    populated_campaign.total_emails = 15
+    assert is_empty_campaign(populated_campaign) is False
+
+
 
