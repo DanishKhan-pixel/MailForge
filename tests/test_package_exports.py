@@ -70,6 +70,7 @@ def test_schemas_package_exports_campaign_filter() -> None:
     assert hasattr(app.schemas, "EmailPayload")
     assert hasattr(app.schemas, "CampaignStats")
     assert hasattr(app.schemas, "CampaignSummaryStats")
+    assert hasattr(app.schemas, "SystemInfoResponse")
 
 
 
