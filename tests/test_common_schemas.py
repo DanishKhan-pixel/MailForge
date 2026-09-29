@@ -56,6 +56,17 @@ def test_system_info_response_schema() -> None:
     assert sys_info.testing is False
 
 
+def test_bulk_delete_response_schema() -> None:
+    from app.schemas.common import BulkDeleteResponse
+
+    res = BulkDeleteResponse(deleted_count=12)
+    assert res.deleted_count == 12
+    assert "deleted successfully" in res.message
+
+    with pytest.raises(ValidationError):
+        BulkDeleteResponse(deleted_count=-1)
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
