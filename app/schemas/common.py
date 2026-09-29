@@ -53,3 +53,10 @@ class SystemInfoResponse(BaseModel):
     environment: str = Field(..., description="Active runtime environment")
     debug: bool = Field(default=False, description="Debug mode indicator")
     testing: bool = Field(default=False, description="Testing mode indicator")
+
+
+class BulkDeleteResponse(BaseModel):
+    """Batch deletion response schema containing deleted count."""
+
+    deleted_count: int = Field(..., ge=0, description="Count of successfully removed records")
+    message: str = Field(default="Records deleted successfully", description="Summary status message")
