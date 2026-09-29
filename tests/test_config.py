@@ -64,6 +64,17 @@ def test_is_testing_property() -> None:
     assert dev_settings.is_testing is False
 
 
+def test_is_local_property() -> None:
+    local_settings = Settings(DATABASE_URL="postgresql+psycopg://user:pass@localhost:5432/db")
+    assert local_settings.is_local is True
+
+    ip_settings = Settings(DATABASE_URL="postgresql+psycopg://user:pass@127.0.0.1:5432/db")
+    assert ip_settings.is_local is True
+
+    remote_settings = Settings(DATABASE_URL="postgresql+psycopg://user:pass@db.internal:5432/db")
+    assert remote_settings.is_local is False
+
+
 
 
 
