@@ -44,3 +44,13 @@ def test_strip_html_tags() -> None:
     assert strip_html_tags("Plain text") == "Plain text"
     assert strip_html_tags("") == ""
     assert strip_html_tags(None) == ""
+
+
+def test_normalize_email() -> None:
+    from app.utils.string_utils import normalize_email
+
+    assert normalize_email("  user@EXAMPLE.COM  ") == "user@example.com"
+    assert normalize_email("User.Name@Sub.Domain.ORG") == "User.Name@sub.domain.org"
+    assert normalize_email("invalidemail") == "invalidemail"
+    assert normalize_email("") == ""
+    assert normalize_email(None) == ""
