@@ -11,7 +11,7 @@ from app.schemas.campaign import (
     CampaignStatusResponse,
     CampaignSummaryStats,
 )
-from app.schemas.common import HealthResponse, MessageResponse, PaginationParams
+from app.schemas.common import HealthResponse, MessageResponse, PaginationParams, SystemInfoResponse
 from app.schemas.recipient import (
     EmailPayload,
     RecipientItem,
@@ -38,4 +38,5 @@ __all__ = [
     "RecipientListResponse",
     "HealthResponse",
     "EmailPayload",
+    "SystemInfoResponse",
 ]
