@@ -68,6 +68,11 @@ class Settings(BaseSettings):
         """Check if application is running in test mode."""
         return self.app_env.lower() in ("test", "testing")
 
+    @property
+    def is_local(self) -> bool:
+        """Check if application connects to local infrastructure hosts."""
+        return "localhost" in self.database_url or "127.0.0.1" in self.database_url
+
 
 
 
