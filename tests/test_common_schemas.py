@@ -41,6 +41,21 @@ def test_api_status_response_schema() -> None:
     assert status_resp.environment == "production"
 
 
+def test_system_info_response_schema() -> None:
+    from app.schemas.common import SystemInfoResponse
+
+    sys_info = SystemInfoResponse(
+        app_name="MailForge",
+        version="2.0.0",
+        environment="development",
+        debug=True,
+        testing=False,
+    )
+    assert sys_info.app_name == "MailForge"
+    assert sys_info.debug is True
+    assert sys_info.testing is False
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
