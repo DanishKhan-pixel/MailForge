@@ -13,6 +13,7 @@ from app.schemas.campaign import (
 )
 from app.schemas.common import (
     BatchOperationResult,
+    DateRangeFilter,
     HealthResponse,
     MessageResponse,
     PaginationParams,
@@ -46,4 +47,5 @@ __all__ = [
     "EmailPayload",
     "SystemInfoResponse",
     "BatchOperationResult",
+    "DateRangeFilter",
 ]
