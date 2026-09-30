@@ -475,4 +475,16 @@ def test_is_empty_campaign() -> None:
     assert is_empty_campaign(populated_campaign) is False
 
 
+def test_is_campaign_editable() -> None:
+    from app.services.campaign_service import is_campaign_editable
+
+    pending_campaign = MagicMock(spec=Campaign)
+    pending_campaign.status = CampaignStatus.pending
+    assert is_campaign_editable(pending_campaign) is True
+
+    running_campaign = MagicMock(spec=Campaign)
+    running_campaign.status = CampaignStatus.running
+    assert is_campaign_editable(running_campaign) is False
+
+
 
