@@ -75,6 +75,14 @@ def test_is_local_property() -> None:
     assert remote_settings.is_local is False
 
 
+def test_is_ssl_enabled_property() -> None:
+    ssl_settings = Settings(SMTP_PORT=465)
+    assert ssl_settings.is_ssl_enabled is True
+
+    tls_settings = Settings(SMTP_PORT=587)
+    assert tls_settings.is_ssl_enabled is False
+
+
 
 
 
