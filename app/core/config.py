@@ -78,8 +78,10 @@ class Settings(BaseSettings):
         """Check if implicit SSL connection is used for SMTP (port 465)."""
         return self.smtp_port == 465
 
-
-
+    @property
+    def is_log_rotation_enabled(self) -> bool:
+        """Check if log file rotation is enabled based on backup count and max bytes configuration."""
+        return self.log_backup_count > 0 and self.log_max_bytes > 0
 
 
 settings = Settings()
