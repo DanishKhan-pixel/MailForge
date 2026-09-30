@@ -67,6 +67,18 @@ def test_bulk_delete_response_schema() -> None:
         BulkDeleteResponse(deleted_count=-1)
 
 
+def test_batch_operation_result_schema() -> None:
+    from app.schemas.common import BatchOperationResult
+
+    batch = BatchOperationResult(total_processed=100, success_count=98, failure_count=2)
+    assert batch.total_processed == 100
+    assert batch.success_count == 98
+    assert batch.failure_count == 2
+
+    with pytest.raises(ValidationError):
+        BatchOperationResult(total_processed=-1, success_count=0)
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
