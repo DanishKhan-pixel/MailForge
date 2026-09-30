@@ -155,6 +155,9 @@ The test suite covers:
 - **SMTP SSL Property**: Settings flag (`is_ssl_enabled`) identifying port 465 SSL connection mode.
 - **Campaign State Guard**: Service helper (`is_campaign_editable`) validating campaign modification status.
 - **Filter Query Parameters**: Validated query filter model (`FilterParams`) for API endpoints.
+- **Email Domain Validation**: Domain syntax validation helper function (`is_valid_email_domain`).
+- **Date Range Filters**: Datetime boundary filter schema (`DateRangeFilter`) for query filtering.
+- **Sorting Parameters**: Column sorting configuration schema (`SortParams`) with asc/desc direction validation.
 
 
 
