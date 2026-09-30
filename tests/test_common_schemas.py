@@ -105,6 +105,21 @@ def test_date_range_filter_schema() -> None:
     assert empty_dr.end_date is None
 
 
+def test_sort_params_schema() -> None:
+    from app.schemas.common import SortParams
+
+    sp = SortParams()
+    assert sp.sort_by == "created_at"
+    assert sp.order == "desc"
+
+    custom_sp = SortParams(sort_by="name", order="asc")
+    assert custom_sp.sort_by == "name"
+    assert custom_sp.order == "asc"
+
+    with pytest.raises(ValidationError):
+        SortParams(order="invalid")
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
