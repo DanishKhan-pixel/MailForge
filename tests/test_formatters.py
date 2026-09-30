@@ -17,3 +17,12 @@ def test_mask_email_short_username() -> None:
 def test_mask_email_invalid_string() -> None:
     assert mask_email("notanemail") == "notanemail"
     assert mask_email("") == ""
+
+
+def test_format_file_size() -> None:
+    from app.utils.formatters import format_file_size
+
+    assert format_file_size(500) == "500 B"
+    assert format_file_size(1536) == "1.5 KB"
+    assert format_file_size(2097152) == "2.0 MB"
+    assert format_file_size(-100) == "0 B"
