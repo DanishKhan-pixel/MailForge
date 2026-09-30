@@ -20,3 +20,20 @@ def extract_email_domain(email: str) -> str | None:
         return None
 
     return parts[1].lower()
+
+
+def is_valid_email_domain(domain: str) -> bool:
+    """Validate whether a string is a properly formatted domain name.
+
+    Args:
+        domain: Input domain name string.
+
+    Returns:
+        True if valid domain structure with TLD, False otherwise.
+    """
+    if not domain or "." not in domain:
+        return False
+    parts = domain.strip().split(".")
+    if len(parts) < 2 or any(not part for part in parts):
+        return False
+    return all(part.isalnum() or "-" in part for part in parts)
