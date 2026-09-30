@@ -504,4 +504,16 @@ def is_empty_campaign(campaign: Campaign) -> bool:
     return campaign.total_emails == 0
 
 
+def is_campaign_editable(campaign: Campaign) -> bool:
+    """Check if a campaign can be edited (must be in pending status).
+
+    Args:
+        campaign: Target Campaign object.
+
+    Returns:
+        True if campaign status is pending, False otherwise.
+    """
+    return campaign.status == CampaignStatus.pending
+
+
 
