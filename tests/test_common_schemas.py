@@ -79,6 +79,18 @@ def test_batch_operation_result_schema() -> None:
         BatchOperationResult(total_processed=-1, success_count=0)
 
 
+def test_filter_params_schema() -> None:
+    from app.schemas.common import FilterParams
+
+    filters = FilterParams(status="sent", search="alice")
+    assert filters.status == "sent"
+    assert filters.search == "alice"
+
+    empty_filters = FilterParams()
+    assert empty_filters.status is None
+    assert empty_filters.search is None
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
