@@ -73,6 +73,11 @@ class Settings(BaseSettings):
         """Check if application connects to local infrastructure hosts."""
         return "localhost" in self.database_url or "127.0.0.1" in self.database_url
 
+    @property
+    def is_ssl_enabled(self) -> bool:
+        """Check if implicit SSL connection is used for SMTP (port 465)."""
+        return self.smtp_port == 465
+
 
 
 
