@@ -68,3 +68,10 @@ class BatchOperationResult(BaseModel):
     total_processed: int = Field(..., ge=0, description="Total count of items processed")
     success_count: int = Field(..., ge=0, description="Count of successfully processed items")
     failure_count: int = Field(default=0, ge=0, description="Count of failed items")
+
+
+class FilterParams(BaseModel):
+    """Generic search and status filter query parameter validation model."""
+
+    status: str | None = Field(default=None, description="Optional status filter string")
+    search: str | None = Field(default=None, max_length=100, description="Optional search term string")
