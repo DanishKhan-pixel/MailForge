@@ -516,4 +516,20 @@ def is_campaign_editable(campaign: Campaign) -> bool:
     return campaign.status == CampaignStatus.pending
 
 
+def calculate_campaign_completion_rate(campaign: Campaign) -> float:
+    """Calculate the percentage completion rate of sent and failed emails for a campaign.
+
+    Args:
+        campaign: Target Campaign object.
+
+    Returns:
+        Percentage float between 0.0 and 100.0 rounded to 2 decimal places.
+    """
+    if campaign.total_emails <= 0:
+        return 0.0
+    processed = campaign.sent_count + campaign.failed_count
+    return round((processed / campaign.total_emails) * 100.0, 2)
+
+
+
 
