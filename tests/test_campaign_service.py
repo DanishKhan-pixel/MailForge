@@ -487,4 +487,26 @@ def test_is_campaign_editable() -> None:
     assert is_campaign_editable(running_campaign) is False
 
 
+def test_calculate_campaign_completion_rate() -> None:
+    from app.services.campaign_service import calculate_campaign_completion_rate
+
+    zero_campaign = MagicMock(spec=Campaign)
+    zero_campaign.total_emails = 0
+    zero_campaign.sent_count = 0
+    zero_campaign.failed_count = 0
+    assert calculate_campaign_completion_rate(zero_campaign) == 0.0
+
+    partial_campaign = MagicMock(spec=Campaign)
+    partial_campaign.total_emails = 10
+    partial_campaign.sent_count = 3
+    partial_campaign.failed_count = 2
+    assert calculate_campaign_completion_rate(partial_campaign) == 50.0
+
+    complete_campaign = MagicMock(spec=Campaign)
+    complete_campaign.total_emails = 3
+    complete_campaign.sent_count = 3
+    complete_campaign.failed_count = 0
+    assert calculate_campaign_completion_rate(complete_campaign) == 100.0
+
+
 
