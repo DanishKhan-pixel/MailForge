@@ -83,6 +83,14 @@ def test_is_ssl_enabled_property() -> None:
     assert tls_settings.is_ssl_enabled is False
 
 
+def test_is_log_rotation_enabled_property() -> None:
+    settings = Settings(LOG_BACKUP_COUNT=5, LOG_MAX_BYTES=1048576)
+    assert settings.is_log_rotation_enabled is True
+
+    no_backup = Settings(LOG_BACKUP_COUNT=0, LOG_MAX_BYTES=1048576)
+    assert no_backup.is_log_rotation_enabled is False
+
+
 
 
 
