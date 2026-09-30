@@ -150,6 +150,11 @@ The test suite covers:
 - **Local Infra Flag**: Settings property (`is_local`) detecting localhost infrastructure connectivity.
 - **Empty Campaign Validation**: Service helper function (`is_empty_campaign`) detecting unpopulated campaigns.
 - **Batch Deletion Response Schema**: Standardized response model (`BulkDeleteResponse`) for deletion operations.
+- **Byte Size Formatting**: Human-readable file size formatting utility (`format_file_size`).
+- **Batch Result Telemetry**: Generic operation status model (`BatchOperationResult`) for bulk processing.
+- **SMTP SSL Property**: Settings flag (`is_ssl_enabled`) identifying port 465 SSL connection mode.
+- **Campaign State Guard**: Service helper (`is_campaign_editable`) validating campaign modification status.
+- **Filter Query Parameters**: Validated query filter model (`FilterParams`) for API endpoints.
 
 
 
