@@ -91,6 +91,20 @@ def test_filter_params_schema() -> None:
     assert empty_filters.search is None
 
 
+def test_date_range_filter_schema() -> None:
+    from datetime import datetime, timezone
+    from app.schemas.common import DateRangeFilter
+
+    now = datetime.now(timezone.utc)
+    dr = DateRangeFilter(start_date=now, end_date=now)
+    assert dr.start_date == now
+    assert dr.end_date == now
+
+    empty_dr = DateRangeFilter()
+    assert empty_dr.start_date is None
+    assert empty_dr.end_date is None
+
+
 
 def test_pagination_params_defaults() -> None:
     params = PaginationParams()
