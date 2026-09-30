@@ -60,3 +60,11 @@ class BulkDeleteResponse(BaseModel):
 
     deleted_count: int = Field(..., ge=0, description="Count of successfully removed records")
     message: str = Field(default="Records deleted successfully", description="Summary status message")
+
+
+class BatchOperationResult(BaseModel):
+    """Generic status result model for bulk batch operations."""
+
+    total_processed: int = Field(..., ge=0, description="Total count of items processed")
+    success_count: int = Field(..., ge=0, description="Count of successfully processed items")
+    failure_count: int = Field(default=0, ge=0, description="Count of failed items")
