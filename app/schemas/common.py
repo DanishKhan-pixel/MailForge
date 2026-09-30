@@ -85,3 +85,10 @@ class DateRangeFilter(BaseModel):
     start_date: datetime | None = Field(default=None, description="Optional start datetime boundary")
     end_date: datetime | None = Field(default=None, description="Optional end datetime boundary")
 
+
+class SortParams(BaseModel):
+    """Query parameter model for column sorting configuration."""
+
+    sort_by: str = Field(default="created_at", description="Field name to sort results by")
+    order: str = Field(default="desc", pattern="^(asc|desc)$", description="Sort ordering direction (asc or desc)")
+
