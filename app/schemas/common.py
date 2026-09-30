@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -75,3 +77,11 @@ class FilterParams(BaseModel):
 
     status: str | None = Field(default=None, description="Optional status filter string")
     search: str | None = Field(default=None, max_length=100, description="Optional search term string")
+
+
+class DateRangeFilter(BaseModel):
+    """Query filter parameters for filtering records by created timestamp range."""
+
+    start_date: datetime | None = Field(default=None, description="Optional start datetime boundary")
+    end_date: datetime | None = Field(default=None, description="Optional end datetime boundary")
+
