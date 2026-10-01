@@ -54,3 +54,14 @@ def test_normalize_email() -> None:
     assert normalize_email("invalidemail") == "invalidemail"
     assert normalize_email("") == ""
     assert normalize_email(None) == ""
+
+
+def test_is_html_content() -> None:
+    from app.utils.string_utils import is_html_content
+
+    assert is_html_content("<h1>Title</h1>") is True
+    assert is_html_content("Click <a href='https://example.com'>here</a>") is True
+    assert is_html_content("Hello World! 5 < 10") is False
+    assert is_html_content("Just plain text") is False
+    assert is_html_content("") is False
+    assert is_html_content(None) is False
