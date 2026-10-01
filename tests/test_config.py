@@ -91,6 +91,14 @@ def test_is_log_rotation_enabled_property() -> None:
     assert no_backup.is_log_rotation_enabled is False
 
 
+def test_is_custom_smtp_port_property() -> None:
+    std_settings = Settings(SMTP_PORT=587)
+    assert std_settings.is_custom_smtp_port is False
+
+    custom_settings = Settings(SMTP_PORT=1025)
+    assert custom_settings.is_custom_smtp_port is True
+
+
 
 
 
