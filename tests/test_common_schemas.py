@@ -133,6 +133,14 @@ def test_pagination_params_custom() -> None:
     assert params.page_size == 50
 
 
+def test_pagination_params_offset() -> None:
+    p1 = PaginationParams(page=1, page_size=10)
+    assert p1.offset == 0
+
+    p3 = PaginationParams(page=3, page_size=20)
+    assert p3.offset == 40
+
+
 def test_pagination_params_validation_error() -> None:
     with pytest.raises(ValidationError):
         PaginationParams(page=0)
