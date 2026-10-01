@@ -158,6 +158,10 @@ The test suite covers:
 - **Email Domain Validation**: Domain syntax validation helper function (`is_valid_email_domain`).
 - **Date Range Filters**: Datetime boundary filter schema (`DateRangeFilter`) for query filtering.
 - **Sorting Parameters**: Column sorting configuration schema (`SortParams`) with asc/desc direction validation.
+- **HTML Content Detection**: Tag detection utility function (`is_html_content`) identifying HTML body markup.
+- **Pagination Query Offset**: Computed property (`PaginationParams.offset`) calculating SQL database query offset.
+- **Custom SMTP Port Flag**: Settings property (`is_custom_smtp_port`) flagging non-standard SMTP server ports.
+- **Campaign Execution Duration**: Service helper (`get_campaign_duration_seconds`) computing elapsed campaign runtime.
 
 
 
