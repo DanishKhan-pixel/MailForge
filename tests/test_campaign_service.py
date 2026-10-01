@@ -509,4 +509,20 @@ def test_calculate_campaign_completion_rate() -> None:
     assert calculate_campaign_completion_rate(complete_campaign) == 100.0
 
 
+def test_get_campaign_duration_seconds() -> None:
+    from datetime import datetime, timedelta, timezone
+    from app.services.campaign_service import get_campaign_duration_seconds
+
+    now = datetime.now(timezone.utc)
+    c = MagicMock(spec=Campaign)
+    c.created_at = now
+    c.updated_at = now + timedelta(seconds=120)
+    assert get_campaign_duration_seconds(c) == 120.0
+
+    missing_c = MagicMock(spec=Campaign)
+    missing_c.created_at = None
+    missing_c.updated_at = now
+    assert get_campaign_duration_seconds(missing_c) is None
+
+
 
