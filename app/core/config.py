@@ -83,6 +83,11 @@ class Settings(BaseSettings):
         """Check if log file rotation is enabled based on backup count and max bytes configuration."""
         return self.log_backup_count > 0 and self.log_max_bytes > 0
 
+    @property
+    def is_custom_smtp_port(self) -> bool:
+        """Check if SMTP port is a non-standard port (not 25, 465, 587, or 2525)."""
+        return self.smtp_port not in (25, 465, 587, 2525)
+
 
 settings = Settings()
 
