@@ -17,6 +17,7 @@ from app.schemas.common import (
     HealthResponse,
     MessageResponse,
     PaginationParams,
+    SortParams,
     SystemInfoResponse,
 )
 from app.schemas.recipient import (
@@ -48,4 +49,5 @@ __all__ = [
     "SystemInfoResponse",
     "BatchOperationResult",
     "DateRangeFilter",
+    "SortParams",
 ]
