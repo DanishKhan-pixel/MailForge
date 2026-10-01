@@ -72,3 +72,19 @@ def normalize_email(email: str) -> str:
         local_part, domain = clean.rsplit("@", 1)
         return f"{local_part}@{domain.lower()}"
     return clean.lower()
+
+
+def is_html_content(content: str) -> bool:
+    """Check if a string contains HTML markup tags.
+
+    Args:
+        content: Input string to inspect.
+
+    Returns:
+        True if string contains HTML tags like <p>, <div>, etc., False otherwise.
+    """
+    if not content:
+        return False
+    import re
+
+    return bool(re.search(r"<[a-zA-Z/][^>]*>", content))
