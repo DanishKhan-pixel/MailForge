@@ -531,5 +531,20 @@ def calculate_campaign_completion_rate(campaign: Campaign) -> float:
     return round((processed / campaign.total_emails) * 100.0, 2)
 
 
+def get_campaign_duration_seconds(campaign: Campaign) -> float | None:
+    """Calculate execution duration in seconds between campaign creation and updated_at timestamp.
+
+    Args:
+        campaign: Target Campaign object.
+
+    Returns:
+        Duration in elapsed seconds as float, or None if timestamps are missing.
+    """
+    if not campaign.created_at or not campaign.updated_at:
+        return None
+    delta = campaign.updated_at - campaign.created_at
+    return max(delta.total_seconds(), 0.0)
+
+
 
 
