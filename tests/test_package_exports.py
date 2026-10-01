@@ -76,6 +76,7 @@ def test_schemas_package_exports_campaign_filter() -> None:
     assert hasattr(app.schemas, "SystemInfoResponse")
     assert hasattr(app.schemas, "BatchOperationResult")
     assert hasattr(app.schemas, "DateRangeFilter")
+    assert hasattr(app.schemas, "SortParams")
 
 
 
