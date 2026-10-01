@@ -19,6 +19,11 @@ class PaginationParams(BaseModel):
     page: int = Field(default=1, ge=1, description="1-indexed page number")
     page_size: int = Field(default=10, ge=1, le=100, description="Number of items per page")
 
+    @property
+    def offset(self) -> int:
+        """Calculate SQL database query offset based on page and page size."""
+        return (self.page - 1) * self.page_size
+
 
 class HealthResponse(BaseModel):
     """System health status response schema."""
