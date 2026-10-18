@@ -99,6 +99,15 @@ def test_is_custom_smtp_port_property() -> None:
     assert custom_settings.is_custom_smtp_port is True
 
 
+def test_is_smtp_configured_property() -> None:
+    configured = Settings(SMTP_HOST="smtp.example.com", SMTP_PORT=587, SMTP_FROM_EMAIL="sender@example.com")
+    assert configured.is_smtp_configured is True
+
+    unconfigured = Settings(SMTP_FROM_EMAIL="")
+    assert unconfigured.is_smtp_configured is False
+
+
+
 
 
 
