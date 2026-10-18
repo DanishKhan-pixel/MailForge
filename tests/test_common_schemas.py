@@ -147,3 +147,41 @@ def test_pagination_params_validation_error() -> None:
 
     with pytest.raises(ValidationError):
         PaginationParams(page_size=200)
+
+
+def test_pagination_meta_schema() -> None:
+    from app.schemas.common import PaginationMeta
+
+    meta = PaginationMeta(
+        page=2,
+        page_size=10,
+        total_items=25,
+        total_pages=3,
+        has_next=True,
+        has_previous=True,
+    )
+    assert meta.page == 2
+    assert meta.page_size == 10
+    assert meta.total_items == 25
+    assert meta.total_pages == 3
+    assert meta.has_next is True
+    assert meta.has_previous is True
+
+
+def test_pagination_meta_from_counts() -> None:
+    from app.schemas.common import PaginationMeta
+
+    first_page = PaginationMeta.from_counts(page=1, page_size=10, total_items=25)
+    assert first_page.total_pages == 3
+    assert first_page.has_next is True
+    assert first_page.has_previous is False
+
+    last_page = PaginationMeta.from_counts(page=3, page_size=10, total_items=25)
+    assert last_page.has_next is False
+    assert last_page.has_previous is True
+
+    empty = PaginationMeta.from_counts(page=1, page_size=10, total_items=0)
+    assert empty.total_pages == 0
+    assert empty.has_next is False
+    assert empty.has_previous is False
+
