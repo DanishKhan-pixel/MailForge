@@ -546,5 +546,20 @@ def get_campaign_duration_seconds(campaign: Campaign) -> float | None:
     return max(delta.total_seconds(), 0.0)
 
 
+def calculate_campaign_failure_rate(campaign: Campaign) -> float:
+    """Calculate the percentage of failed emails relative to total emails for a campaign.
+
+    Args:
+        campaign: Target Campaign object.
+
+    Returns:
+        Percentage float between 0.0 and 100.0 rounded to 2 decimal places.
+    """
+    if campaign.total_emails <= 0:
+        return 0.0
+    return round((campaign.failed_count / campaign.total_emails) * 100.0, 2)
+
+
+
 
 
