@@ -525,4 +525,24 @@ def test_get_campaign_duration_seconds() -> None:
     assert get_campaign_duration_seconds(missing_c) is None
 
 
+def test_calculate_campaign_failure_rate() -> None:
+    from app.services.campaign_service import calculate_campaign_failure_rate
+
+    zero_campaign = MagicMock(spec=Campaign)
+    zero_campaign.total_emails = 0
+    zero_campaign.failed_count = 0
+    assert calculate_campaign_failure_rate(zero_campaign) == 0.0
+
+    partial_campaign = MagicMock(spec=Campaign)
+    partial_campaign.total_emails = 20
+    partial_campaign.failed_count = 5
+    assert calculate_campaign_failure_rate(partial_campaign) == 25.0
+
+    none_failed = MagicMock(spec=Campaign)
+    none_failed.total_emails = 10
+    none_failed.failed_count = 0
+    assert calculate_campaign_failure_rate(none_failed) == 0.0
+
+
+
 
