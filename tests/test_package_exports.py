@@ -66,6 +66,7 @@ def test_utils_package_exports() -> None:
     assert hasattr(app.utils, "normalize_email")
     assert hasattr(app.utils, "format_file_size")
     assert hasattr(app.utils, "is_html_content")
+    assert hasattr(app.utils, "format_recipient_display")
 
 
 
