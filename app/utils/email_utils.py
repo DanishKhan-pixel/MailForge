@@ -37,3 +37,20 @@ def is_valid_email_domain(domain: str) -> bool:
     if len(parts) < 2 or any(not part for part in parts):
         return False
     return all(part.isalnum() or "-" in part for part in parts)
+
+
+def format_recipient_display(name: str | None, email: str) -> str:
+    """Format recipient name and email into standard email address display string.
+
+    Args:
+        name: Optional recipient display name.
+        email: Recipient email address string.
+
+    Returns:
+        Formatted string like 'Jane Doe <jane@example.com>' or 'jane@example.com'.
+    """
+    clean_email = email.strip() if email else ""
+    if name and name.strip():
+        return f"{name.strip()} <{clean_email}>"
+    return clean_email
+
