@@ -162,6 +162,11 @@ The test suite covers:
 - **Pagination Query Offset**: Computed property (`PaginationParams.offset`) calculating SQL database query offset.
 - **Custom SMTP Port Flag**: Settings property (`is_custom_smtp_port`) flagging non-standard SMTP server ports.
 - **Campaign Execution Duration**: Service helper (`get_campaign_duration_seconds`) computing elapsed campaign runtime.
+- **Recipient Address Display Formatting**: Name and email formatting utility (`format_recipient_display`) for standard email display strings.
+- **Batch Count Calculation**: Batch partition counting utility (`calculate_batch_count`) for bulk queue division.
+- **Pagination Metadata Schema**: Structured list response metadata model (`PaginationMeta`) with automatic boundary computation.
+- **SMTP Configuration Verification**: Settings property (`is_smtp_configured`) validating essential host and sender credentials.
+- **Campaign Failure Rate Telemetry**: Service helper (`calculate_campaign_failure_rate`) calculating percentage of failed deliveries.
 
 
 
