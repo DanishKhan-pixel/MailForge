@@ -88,6 +88,11 @@ class Settings(BaseSettings):
         """Check if SMTP port is a non-standard port (not 25, 465, 587, or 2525)."""
         return self.smtp_port not in (25, 465, 587, 2525)
 
+    @property
+    def is_smtp_configured(self) -> bool:
+        """Check if essential SMTP delivery credentials and host parameters are configured."""
+        return bool(self.smtp_host and self.smtp_port > 0 and self.smtp_from_email)
+
 
 settings = Settings()
 
