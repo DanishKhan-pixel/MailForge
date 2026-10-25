@@ -88,3 +88,18 @@ def is_html_content(content: str) -> bool:
     import re
 
     return bool(re.search(r"<[a-zA-Z/][^>]*>", content))
+
+
+def count_words(text: str) -> int:
+    """Count the number of whitespace-delimited words in a string.
+
+    Args:
+        text: Input text string.
+
+    Returns:
+        Integer word count (0 if empty or whitespace).
+    """
+    if not text:
+        return 0
+    return len(text.split())
+
