@@ -43,3 +43,11 @@ class Campaign(Base):
     def __repr__(self) -> str:
         return f"<Campaign(id={self.id}, subject={self.subject!r}, status={self.status!r})>"
 
+    @property
+    def progress_percentage(self) -> float:
+        """Calculate progress percentage of processed emails relative to total."""
+        if self.total_emails <= 0:
+            return 0.0
+        return round(((self.sent_count + self.failed_count) / self.total_emails) * 100.0, 2)
+
+
