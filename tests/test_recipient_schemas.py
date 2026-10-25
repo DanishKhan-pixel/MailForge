@@ -63,3 +63,23 @@ def test_recipient_list_response_pagination_fields() -> None:
     assert response.page_size == 20
     assert response.total == 41
     assert len(response.items) == 1
+
+
+def test_recipient_stats_schema() -> None:
+    from app.schemas.recipient import RecipientStats
+
+    default_stats = RecipientStats()
+    assert default_stats.total == 0
+    assert default_stats.sent == 0
+    assert default_stats.pending == 0
+    assert default_stats.failed == 0
+
+    custom_stats = RecipientStats(total=10, sent=7, pending=2, failed=1)
+    assert custom_stats.total == 10
+    assert custom_stats.sent == 7
+    assert custom_stats.pending == 2
+    assert custom_stats.failed == 1
+
+    with pytest.raises(ValidationError):
+        RecipientStats(total=-1)
+
