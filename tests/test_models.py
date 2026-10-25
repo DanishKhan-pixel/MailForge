@@ -70,3 +70,15 @@ def test_campaign_progress_percentage() -> None:
     c_full = Campaign(subject="Test", message="Body", total_emails=4, sent_count=4, failed_count=0)
     assert c_full.progress_percentage == 100.0
 
+
+def test_campaign_is_finished() -> None:
+    pending = Campaign(subject="Test", message="Body", status=CampaignStatus.pending)
+    assert pending.is_finished is False
+
+    running = Campaign(subject="Test", message="Body", status=CampaignStatus.running)
+    assert running.is_finished is False
+
+    completed = Campaign(subject="Test", message="Body", status=CampaignStatus.completed)
+    assert completed.is_finished is True
+
+
