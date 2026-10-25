@@ -107,6 +107,15 @@ def test_is_smtp_configured_property() -> None:
     assert unconfigured.is_smtp_configured is False
 
 
+def test_is_log_file_configured_property() -> None:
+    configured = Settings(LOG_DIR="logs", LOG_FILE_NAME="app.log")
+    assert configured.is_log_file_configured is True
+
+    unconfigured = Settings(LOG_DIR="")
+    assert unconfigured.is_log_file_configured is False
+
+
+
 
 
 
