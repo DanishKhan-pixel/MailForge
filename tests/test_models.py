@@ -58,3 +58,15 @@ def test_recipient_has_case_insensitive_unique_index() -> None:
 def test_recipient_has_campaign_status_composite_index() -> None:
     index = next(index for index in Recipient.__table__.indexes if index.name == "ix_recipients_campaign_status")
     assert {column.name for column in index.columns} == {"campaign_id", "status"}
+
+
+def test_campaign_progress_percentage() -> None:
+    c_zero = Campaign(subject="Test", message="Body", total_emails=0)
+    assert c_zero.progress_percentage == 0.0
+
+    c_half = Campaign(subject="Test", message="Body", total_emails=10, sent_count=3, failed_count=2)
+    assert c_half.progress_percentage == 50.0
+
+    c_full = Campaign(subject="Test", message="Body", total_emails=4, sent_count=4, failed_count=0)
+    assert c_full.progress_percentage == 100.0
+
