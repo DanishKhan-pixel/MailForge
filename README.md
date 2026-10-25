@@ -167,6 +167,11 @@ The test suite covers:
 - **Pagination Metadata Schema**: Structured list response metadata model (`PaginationMeta`) with automatic boundary computation.
 - **SMTP Configuration Verification**: Settings property (`is_smtp_configured`) validating essential host and sender credentials.
 - **Campaign Failure Rate Telemetry**: Service helper (`calculate_campaign_failure_rate`) calculating percentage of failed deliveries.
+- **Campaign Model Progress Percentage**: Model property (`Campaign.progress_percentage`) computing delivery completion progress.
+- **Campaign Completion State Flag**: Model property (`Campaign.is_finished`) indicating terminal completed status.
+- **Recipient Aggregate Statistics Schema**: Response model (`RecipientStats`) structuring status tallies.
+- **Word Counting Utility**: String processing function (`count_words`) calculating message template token length.
+- **Log File Configuration Check**: Settings property (`is_log_file_configured`) validating file logging directory setup.
 
 
 
