@@ -65,3 +65,14 @@ def test_is_html_content() -> None:
     assert is_html_content("Just plain text") is False
     assert is_html_content("") is False
     assert is_html_content(None) is False
+
+
+def test_count_words() -> None:
+    from app.utils.string_utils import count_words
+
+    assert count_words("Hello World") == 2
+    assert count_words("   Three   spaced   words   ") == 3
+    assert count_words("SingleWord") == 1
+    assert count_words("") == 0
+    assert count_words(None) == 0
+
