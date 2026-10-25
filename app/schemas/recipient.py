@@ -69,4 +69,14 @@ class EmailPayload(BaseModel):
     body: str = Field(..., min_length=1, max_length=10000, description="Email body message text")
 
 
+class RecipientStats(BaseModel):
+    """Aggregate statistics for recipient delivery statuses."""
+
+    total: int = Field(default=0, ge=0, description="Total count of recipients")
+    sent: int = Field(default=0, ge=0, description="Count of sent recipients")
+    pending: int = Field(default=0, ge=0, description="Count of pending recipients")
+    failed: int = Field(default=0, ge=0, description="Count of failed recipients")
+
+
+
 
