@@ -93,6 +93,11 @@ class Settings(BaseSettings):
         """Check if essential SMTP delivery credentials and host parameters are configured."""
         return bool(self.smtp_host and self.smtp_port > 0 and self.smtp_from_email)
 
+    @property
+    def is_log_file_configured(self) -> bool:
+        """Check if log directory and log filename are properly specified."""
+        return bool(self.log_dir and self.log_file_name)
+
 
 settings = Settings()
 
