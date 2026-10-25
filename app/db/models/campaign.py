@@ -50,4 +50,10 @@ class Campaign(Base):
             return 0.0
         return round(((self.sent_count + self.failed_count) / self.total_emails) * 100.0, 2)
 
+    @property
+    def is_finished(self) -> bool:
+        """Check if campaign processing is in completed status."""
+        return self.status == CampaignStatus.completed
+
+
 
