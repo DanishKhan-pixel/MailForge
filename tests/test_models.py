@@ -48,6 +48,15 @@ def test_email_log_model_repr() -> None:
     assert "status='sent'" in repr_str
 
 
+def test_email_log_is_success() -> None:
+    sent_log = EmailLog(id=1, recipient_id=1, status="sent")
+    assert sent_log.is_success is True
+
+    failed_log = EmailLog(id=2, recipient_id=1, status="failed")
+    assert failed_log.is_success is False
+
+
+
 def test_recipient_has_case_insensitive_unique_index() -> None:
     index_names = {index.name for index in Recipient.__table__.indexes}
     assert "uq_recipients_campaign_email" in index_names
