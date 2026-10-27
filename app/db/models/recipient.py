@@ -46,3 +46,9 @@ class Recipient(Base):
     def __repr__(self) -> str:
         return f"<Recipient(id={self.id}, campaign_id={self.campaign_id}, email={self.email!r}, status={self.status!r})>"
 
+    @property
+    def is_sent(self) -> bool:
+        """Check if recipient email delivery succeeded."""
+        return self.status == RecipientStatus.sent
+
+
