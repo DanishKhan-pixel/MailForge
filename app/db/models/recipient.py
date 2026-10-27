@@ -51,4 +51,12 @@ class Recipient(Base):
         """Check if recipient email delivery succeeded."""
         return self.status == RecipientStatus.sent
 
+    @property
+    def display_name(self) -> str:
+        """Get formatted recipient display name or email fallback."""
+        if self.name and self.name.strip():
+            return self.name.strip()
+        return self.email
+
+
 
