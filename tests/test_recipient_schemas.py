@@ -83,3 +83,19 @@ def test_recipient_stats_schema() -> None:
     with pytest.raises(ValidationError):
         RecipientStats(total=-1)
 
+
+def test_recipient_query_filter_schema() -> None:
+    from app.schemas.recipient import RecipientQueryFilter
+
+    default_filter = RecipientQueryFilter()
+    assert default_filter.status is None
+    assert default_filter.search is None
+
+    custom_filter = RecipientQueryFilter(status="sent", search="alice")
+    assert custom_filter.status == "sent"
+    assert custom_filter.search == "alice"
+
+    with pytest.raises(ValidationError):
+        RecipientQueryFilter(search="x" * 101)
+
+
