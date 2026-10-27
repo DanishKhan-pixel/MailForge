@@ -54,3 +54,31 @@ def format_recipient_display(name: str | None, email: str) -> str:
         return f"{name.strip()} <{clean_email}>"
     return clean_email
 
+
+DISPOSABLE_EMAIL_DOMAINS = frozenset(
+    {
+        "mailinator.com",
+        "tempmail.com",
+        "10minutemail.com",
+        "guerrillamail.com",
+        "sharklasers.com",
+        "throwawaymail.com",
+        "yopmail.com",
+    }
+)
+
+
+def is_disposable_email_domain(domain: str) -> bool:
+    """Check if a domain matches known disposable temporary email providers.
+
+    Args:
+        domain: Input domain string.
+
+    Returns:
+        True if domain is recognized as disposable, False otherwise.
+    """
+    if not domain:
+        return False
+    return domain.strip().lower() in DISPOSABLE_EMAIL_DOMAINS
+
+
