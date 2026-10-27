@@ -78,5 +78,13 @@ class RecipientStats(BaseModel):
     failed: int = Field(default=0, ge=0, description="Count of failed recipients")
 
 
+class RecipientQueryFilter(BaseModel):
+    """Filter parameters for querying campaign recipients."""
+
+    status: str | None = Field(default=None, description="Optional status filter (e.g. pending, sent, failed)")
+    search: str | None = Field(default=None, max_length=100, description="Optional search term matching email or name")
+
+
+
 
 
