@@ -41,6 +41,16 @@ def test_recipient_model_repr() -> None:
     assert "email='test@example.com'" in repr_str
 
 
+def test_recipient_is_sent() -> None:
+    cid = uuid.uuid4()
+    sent_recipient = Recipient(id=1, campaign_id=cid, email="test@example.com", status=RecipientStatus.sent)
+    assert sent_recipient.is_sent is True
+
+    pending_recipient = Recipient(id=2, campaign_id=cid, email="test@example.com", status=RecipientStatus.pending)
+    assert pending_recipient.is_sent is False
+
+
+
 def test_email_log_model_repr() -> None:
     log = EmailLog(id=10, recipient_id=1, status="sent")
     repr_str = repr(log)
