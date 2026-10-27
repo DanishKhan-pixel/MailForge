@@ -37,3 +37,15 @@ def test_format_recipient_display() -> None:
     assert format_recipient_display("", "alice@example.com") == "alice@example.com"
     assert format_recipient_display("   ", "alice@example.com") == "alice@example.com"
 
+
+def test_is_disposable_email_domain() -> None:
+    from app.utils.email_utils import is_disposable_email_domain
+
+    assert is_disposable_email_domain("mailinator.com") is True
+    assert is_disposable_email_domain("TempMail.COM") is True
+    assert is_disposable_email_domain("gmail.com") is False
+    assert is_disposable_email_domain("example.org") is False
+    assert is_disposable_email_domain("") is False
+    assert is_disposable_email_domain(None) is False
+
+
