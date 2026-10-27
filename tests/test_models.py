@@ -50,6 +50,19 @@ def test_recipient_is_sent() -> None:
     assert pending_recipient.is_sent is False
 
 
+def test_recipient_display_name() -> None:
+    cid = uuid.uuid4()
+    named = Recipient(id=1, campaign_id=cid, email="user@example.com", name="  Alice Wonderland  ")
+    assert named.display_name == "Alice Wonderland"
+
+    unnamed = Recipient(id=2, campaign_id=cid, email="anon@example.com", name="")
+    assert unnamed.display_name == "anon@example.com"
+
+    none_named = Recipient(id=3, campaign_id=cid, email="anon2@example.com", name=None)
+    assert none_named.display_name == "anon2@example.com"
+
+
+
 
 def test_email_log_model_repr() -> None:
     log = EmailLog(id=10, recipient_id=1, status="sent")
