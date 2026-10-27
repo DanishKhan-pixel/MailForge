@@ -28,3 +28,9 @@ class EmailLog(Base):
     def __repr__(self) -> str:
         return f"<EmailLog(id={self.id}, recipient_id={self.recipient_id}, status={self.status!r})>"
 
+    @property
+    def is_success(self) -> bool:
+        """Check if email log entry indicates successful delivery."""
+        return self.status == "sent"
+
+
