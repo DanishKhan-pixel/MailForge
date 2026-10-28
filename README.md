@@ -172,6 +172,11 @@ The test suite covers:
 - **Recipient Aggregate Statistics Schema**: Response model (`RecipientStats`) structuring status tallies.
 - **Word Counting Utility**: String processing function (`count_words`) calculating message template token length.
 - **Log File Configuration Check**: Settings property (`is_log_file_configured`) validating file logging directory setup.
+- **EmailLog Success Status**: Model property (`EmailLog.is_success`) indicating successful email transmission.
+- **Recipient Sent Status**: Model property (`Recipient.is_sent`) indicating recipient delivery completion.
+- **Recipient Display Name**: Model property (`Recipient.display_name`) resolving full name or email address fallback.
+- **Recipient Query Filter**: Filtering schema (`RecipientQueryFilter`) supporting status, email search, and pagination.
+- **Disposable Email Detection**: Validation utility (`is_disposable_email_domain`) identifying temporary/throwaway email providers.
 
 
 
