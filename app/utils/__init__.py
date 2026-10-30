@@ -6,6 +6,7 @@ from app.utils.batch_utils import chunk_list
 from app.utils.datetime_utils import format_utc_timestamp, parse_iso_timestamp
 from app.utils.email_utils import (
     extract_email_domain,
+    extract_mailbox_name,
     format_recipient_display,
     is_disposable_email_domain,
     is_valid_email_domain,
@@ -27,6 +28,7 @@ __all__ = [
     "truncate_text",
     "chunk_list",
     "extract_email_domain",
+    "extract_mailbox_name",
     "is_valid_email_domain",
     "is_disposable_email_domain",
     "format_recipient_display",
