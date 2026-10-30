@@ -23,6 +23,7 @@ from app.schemas.common import (
 )
 from app.schemas.recipient import (
     EmailPayload,
+    RecipientBulkDelete,
     RecipientItem,
     RecipientListResponse,
     RecipientQueryFilter,
@@ -50,6 +51,7 @@ __all__ = [
     "RecipientListResponse",
     "RecipientStats",
     "RecipientQueryFilter",
+    "RecipientBulkDelete",
     "HealthResponse",
     "EmailPayload",
     "SystemInfoResponse",
