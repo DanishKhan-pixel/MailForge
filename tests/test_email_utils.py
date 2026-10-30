@@ -49,3 +49,15 @@ def test_is_disposable_email_domain() -> None:
     assert is_disposable_email_domain(None) is False
 
 
+def test_extract_mailbox_name() -> None:
+    from app.utils.email_utils import extract_mailbox_name
+
+    assert extract_mailbox_name("user@example.com") == "user"
+    assert extract_mailbox_name("john.doe@company.org") == "john.doe"
+    assert extract_mailbox_name("alice+tag@service.io") == "alice+tag"
+    assert extract_mailbox_name("invalid") is None
+    assert extract_mailbox_name("@domain.com") is None
+    assert extract_mailbox_name("user@") is None
+    assert extract_mailbox_name("") is None
+
+
