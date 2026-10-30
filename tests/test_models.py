@@ -50,6 +50,15 @@ def test_recipient_is_sent() -> None:
     assert pending_recipient.is_sent is False
 
 
+def test_recipient_is_failed() -> None:
+    cid = uuid.uuid4()
+    failed_recipient = Recipient(id=1, campaign_id=cid, email="test@example.com", status=RecipientStatus.failed)
+    assert failed_recipient.is_failed is True
+
+    pending_recipient = Recipient(id=2, campaign_id=cid, email="test@example.com", status=RecipientStatus.pending)
+    assert pending_recipient.is_failed is False
+
+
 def test_recipient_display_name() -> None:
     cid = uuid.uuid4()
     named = Recipient(id=1, campaign_id=cid, email="user@example.com", name="  Alice Wonderland  ")
