@@ -66,6 +66,7 @@ def test_delete_campaign_endpoint_returns_204() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 204
+    assert response.content == b""
     db.delete.assert_called_once_with(campaign)
     db.commit.assert_called_once()
 
@@ -794,6 +795,7 @@ def test_delete_campaign_recipient_endpoint_returns_204() -> None:
         app.dependency_overrides.clear()
 
     assert response.status_code == 204
+    assert response.content == b""
     db.delete.assert_called_once_with(recipient)
     db.commit.assert_called_once()
     assert campaign.total_emails == 9
