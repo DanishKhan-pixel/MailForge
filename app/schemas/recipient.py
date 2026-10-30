@@ -85,6 +85,12 @@ class RecipientQueryFilter(BaseModel):
     search: str | None = Field(default=None, max_length=100, description="Optional search term matching email or name")
 
 
+class RecipientBulkDelete(BaseModel):
+    """Payload for bulk deleting recipients by IDs."""
+
+    recipient_ids: list[int] = Field(..., min_length=1, description="List of recipient IDs to delete")
+
+
 
 
 
