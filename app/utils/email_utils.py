@@ -22,6 +22,25 @@ def extract_email_domain(email: str) -> str | None:
     return parts[1].lower()
 
 
+def extract_mailbox_name(email: str) -> str | None:
+    """Extract local mailbox username portion from an email address string.
+
+    Args:
+        email: Input email address string.
+
+    Returns:
+        Mailbox username portion before @ if valid, None otherwise.
+    """
+    if not email or "@" not in email:
+        return None
+
+    parts = email.strip().split("@")
+    if len(parts) != 2 or not parts[0] or not parts[1]:
+        return None
+
+    return parts[0]
+
+
 def is_valid_email_domain(domain: str) -> bool:
     """Validate whether a string is a properly formatted domain name.
 
