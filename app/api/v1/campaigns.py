@@ -169,12 +169,14 @@ def get_campaign_status(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -
 @router.delete(
     "/{campaign_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     dependencies=[Depends(rate_limit(20, 60))],
 )
-def delete_campaign_endpoint(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -> None:
+def delete_campaign_endpoint(campaign_id: uuid.UUID, db: Session = Depends(get_db)) -> Response:
     """Delete a campaign along with its recipients and email logs."""
     campaign = get_campaign_or_404(db, campaign_id)
     delete_campaign(db, campaign)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(
@@ -260,17 +262,19 @@ def get_campaign_recipient(
 @router.delete(
     "/{campaign_id}/recipients/{recipient_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     dependencies=[Depends(rate_limit(20, 60))],
 )
 def delete_campaign_recipient_endpoint(
     campaign_id: uuid.UUID,
     recipient_id: int,
     db: Session = Depends(get_db),
-) -> None:
+) -> Response:
     """Delete a single recipient from a campaign and reconcile counters."""
     campaign = get_campaign_or_404(db, campaign_id)
     recipient = get_campaign_recipient_or_404(db, campaign_id, recipient_id)
     delete_campaign_recipient(db, campaign, recipient)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post(
