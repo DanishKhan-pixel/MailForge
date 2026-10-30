@@ -123,3 +123,14 @@ def test_campaign_is_finished() -> None:
     assert completed.is_finished is True
 
 
+def test_campaign_success_rate() -> None:
+    c_zero = Campaign(subject="Test", message="Body", total_emails=0)
+    assert c_zero.success_rate == 0.0
+
+    c_partial = Campaign(subject="Test", message="Body", total_emails=10, sent_count=7, failed_count=3)
+    assert c_partial.success_rate == 70.0
+
+    c_full = Campaign(subject="Test", message="Body", total_emails=5, sent_count=5, failed_count=0)
+    assert c_full.success_rate == 100.0
+
+
