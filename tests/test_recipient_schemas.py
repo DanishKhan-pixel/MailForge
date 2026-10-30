@@ -99,3 +99,13 @@ def test_recipient_query_filter_schema() -> None:
         RecipientQueryFilter(search="x" * 101)
 
 
+def test_recipient_bulk_delete_schema() -> None:
+    from app.schemas.recipient import RecipientBulkDelete
+
+    payload = RecipientBulkDelete(recipient_ids=[1, 2, 3])
+    assert payload.recipient_ids == [1, 2, 3]
+
+    with pytest.raises(ValidationError):
+        RecipientBulkDelete(recipient_ids=[])
+
+
