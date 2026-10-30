@@ -55,5 +55,12 @@ class Campaign(Base):
         """Check if campaign processing is in completed status."""
         return self.status == CampaignStatus.completed
 
+    @property
+    def success_rate(self) -> float:
+        """Calculate percentage of successfully delivered emails relative to total."""
+        if self.total_emails <= 0:
+            return 0.0
+        return round((self.sent_count / self.total_emails) * 100.0, 2)
+
 
 
