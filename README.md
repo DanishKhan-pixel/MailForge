@@ -177,6 +177,11 @@ The test suite covers:
 - **Recipient Display Name**: Model property (`Recipient.display_name`) resolving full name or email address fallback.
 - **Recipient Query Filter**: Filtering schema (`RecipientQueryFilter`) supporting status, email search, and pagination.
 - **Disposable Email Detection**: Validation utility (`is_disposable_email_domain`) identifying temporary/throwaway email providers.
+- **FastAPI 204 No Content Compatibility**: Direct `Response` return and route response class ensuring empty body validation for DELETE endpoints.
+- **Recipient Failed Status**: Model property (`Recipient.is_failed`) indicating delivery failure state.
+- **Campaign Success Rate**: Model property (`Campaign.success_rate`) computing percentage of successfully sent emails relative to total.
+- **Recipient Bulk Deletion Schema**: Payload model (`RecipientBulkDelete`) validating recipient ID collections for batch deletion.
+- **Mailbox Username Extraction**: String parsing utility (`extract_mailbox_name`) isolating local recipient username from email addresses.
 
 
 
