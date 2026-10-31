@@ -76,3 +76,13 @@ def test_count_words() -> None:
     assert count_words("") == 0
     assert count_words(None) == 0
 
+
+def test_extract_template_placeholders() -> None:
+    from app.utils.string_utils import extract_template_placeholders
+
+    assert extract_template_placeholders("Hello {name}, welcome to {service}!") == ["name", "service"]
+    assert extract_template_placeholders("Hi {name}, see you later {name}!") == ["name"]
+    assert extract_template_placeholders("No variables here.") == []
+    assert extract_template_placeholders("") == []
+    assert extract_template_placeholders(None) == []
+
