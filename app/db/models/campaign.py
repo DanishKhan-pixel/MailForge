@@ -62,5 +62,14 @@ class Campaign(Base):
             return 0.0
         return round((self.sent_count / self.total_emails) * 100.0, 2)
 
+    @property
+    def pending_count(self) -> int:
+        """Calculate count of pending recipients remaining in campaign."""
+        if (self.total_emails or 0) <= 0:
+            return 0
+        sent = self.sent_count or 0
+        failed = self.failed_count or 0
+        return max(0, self.total_emails - (sent + failed))
+
 
 
