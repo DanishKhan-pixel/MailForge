@@ -91,6 +91,12 @@ class RecipientBulkDelete(BaseModel):
     recipient_ids: list[int] = Field(..., min_length=1, description="List of recipient IDs to delete")
 
 
+class RecipientUpdate(BaseModel):
+    """Payload for updating recipient details."""
+
+    name: str | None = Field(default=None, max_length=200, description="Optional recipient display name")
+
+
 
 
 
