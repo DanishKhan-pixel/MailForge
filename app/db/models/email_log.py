@@ -33,4 +33,9 @@ class EmailLog(Base):
         """Check if email log entry indicates successful delivery."""
         return self.status == "sent"
 
+    @property
+    def is_failure(self) -> bool:
+        """Check if email log entry indicates failed delivery."""
+        return self.status != "sent"
+
 
