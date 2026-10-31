@@ -109,3 +109,16 @@ def test_recipient_bulk_delete_schema() -> None:
         RecipientBulkDelete(recipient_ids=[])
 
 
+def test_recipient_update_schema() -> None:
+    from app.schemas.recipient import RecipientUpdate
+
+    default_update = RecipientUpdate()
+    assert default_update.name is None
+
+    custom_update = RecipientUpdate(name="Jane Doe")
+    assert custom_update.name == "Jane Doe"
+
+    with pytest.raises(ValidationError):
+        RecipientUpdate(name="x" * 201)
+
+
