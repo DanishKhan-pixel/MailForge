@@ -14,6 +14,7 @@ from app.utils.email_utils import (
 from app.utils.formatters import format_file_size, mask_email
 from app.utils.string_utils import (
     count_words,
+    extract_template_placeholders,
     is_html_content,
     normalize_email,
     sanitize_subject,
@@ -38,4 +39,5 @@ __all__ = [
     "format_file_size",
     "is_html_content",
     "count_words",
+    "extract_template_placeholders",
 ]
