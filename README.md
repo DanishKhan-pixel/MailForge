@@ -182,6 +182,11 @@ The test suite covers:
 - **Campaign Success Rate**: Model property (`Campaign.success_rate`) computing percentage of successfully sent emails relative to total.
 - **Recipient Bulk Deletion Schema**: Payload model (`RecipientBulkDelete`) validating recipient ID collections for batch deletion.
 - **Mailbox Username Extraction**: String parsing utility (`extract_mailbox_name`) isolating local recipient username from email addresses.
+- **Campaign Pending Count**: Model property (`Campaign.pending_count`) calculating remaining unsent emails.
+- **Recipient Pending Status**: Model property (`Recipient.is_pending`) indicating awaiting delivery state.
+- **Email Log Failure Status**: Model property (`EmailLog.is_failure`) indicating failed delivery attempt state.
+- **Recipient Update Schema**: Payload model (`RecipientUpdate`) for editing recipient metadata.
+- **Template Placeholder Extraction**: Template analysis utility (`extract_template_placeholders`) discovering merge tags.
 
 
 
