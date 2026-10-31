@@ -134,3 +134,17 @@ def test_campaign_success_rate() -> None:
     assert c_full.success_rate == 100.0
 
 
+def test_campaign_pending_count() -> None:
+    c_zero = Campaign(subject="Test", message="Body", total_emails=0)
+    assert c_zero.pending_count == 0
+
+    c_some = Campaign(subject="Test", message="Body", total_emails=10, sent_count=4, failed_count=2)
+    assert c_some.pending_count == 4
+
+    c_all_done = Campaign(subject="Test", message="Body", total_emails=5, sent_count=3, failed_count=2)
+    assert c_all_done.pending_count == 0
+
+    c_overflow = Campaign(subject="Test", message="Body", total_emails=5, sent_count=6, failed_count=1)
+    assert c_overflow.pending_count == 0
+
+
