@@ -103,3 +103,20 @@ def count_words(text: str) -> int:
         return 0
     return len(text.split())
 
+
+def extract_template_placeholders(template: str) -> list[str]:
+    """Extract format placeholder variable names from a template string.
+
+    Args:
+        template: Input template text (e.g. 'Hello {name}, your code is {code}').
+
+    Returns:
+        Sorted list of unique placeholder field names without braces.
+    """
+    if not template:
+        return []
+    import re
+
+    matches = re.findall(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", template)
+    return sorted(set(matches))
+
