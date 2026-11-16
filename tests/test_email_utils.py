@@ -61,3 +61,15 @@ def test_extract_mailbox_name() -> None:
     assert extract_mailbox_name("") is None
 
 
+def test_is_free_email_domain() -> None:
+    from app.utils.email_utils import is_free_email_domain
+
+    assert is_free_email_domain("gmail.com") is True
+    assert is_free_email_domain("YAHOO.COM") is True
+    assert is_free_email_domain("outlook.com") is True
+    assert is_free_email_domain("company.org") is False
+    assert is_free_email_domain("mailinator.com") is False
+    assert is_free_email_domain("") is False
+    assert is_free_email_domain(None) is False
+
+
