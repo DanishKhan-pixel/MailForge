@@ -76,5 +76,10 @@ class Campaign(Base):
         failed = self.failed_count or 0
         return max(0, self.total_emails - (sent + failed))
 
+    @property
+    def has_recipients(self) -> bool:
+        """Check if campaign has at least one recipient."""
+        return (self.total_emails or 0) > 0
+
 
 
