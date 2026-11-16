@@ -187,6 +187,11 @@ The test suite covers:
 - **Email Log Failure Status**: Model property (`EmailLog.is_failure`) indicating failed delivery attempt state.
 - **Recipient Update Schema**: Payload model (`RecipientUpdate`) for editing recipient metadata.
 - **Template Placeholder Extraction**: Template analysis utility (`extract_template_placeholders`) discovering merge tags.
+- **Campaign Execution State Flag**: Model property (`Campaign.is_running`) identifying active sending state.
+- **Campaign Recipient Presence Check**: Model property (`Campaign.has_recipients`) checking recipient population.
+- **Recipient Error Tracking**: Model property (`Recipient.has_error`) indicating failed delivery error message presence.
+- **Campaign Duplication Schema**: Payload model (`CampaignDuplicate`) supporting cloning with subject sanitization.
+- **Free Email Provider Detection**: Domain classification utility (`is_free_email_domain`) identifying consumer webmail domains.
 
 
 
