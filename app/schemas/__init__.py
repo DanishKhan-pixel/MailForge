@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from app.schemas.campaign import (
     CampaignCreate,
+    CampaignDuplicate,
     CampaignListResponse,
     CampaignQueryFilter,
     CampaignResponse,
@@ -36,6 +37,7 @@ from app.schemas.recipient import (
 
 __all__ = [
     "CampaignCreate",
+    "CampaignDuplicate",
     "CampaignResponse",
     "CampaignListResponse",
     "CampaignStatusResponse",
