@@ -176,3 +176,11 @@ def test_campaign_pending_count() -> None:
     assert c_overflow.pending_count == 0
 
 
+def test_campaign_has_recipients() -> None:
+    c_empty = Campaign(subject="Test", message="Body", total_emails=0)
+    assert c_empty.has_recipients is False
+
+    c_with_recipients = Campaign(subject="Test", message="Body", total_emails=10)
+    assert c_with_recipients.has_recipients is True
+
+
