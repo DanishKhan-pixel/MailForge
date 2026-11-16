@@ -101,3 +101,33 @@ def is_disposable_email_domain(domain: str) -> bool:
     return domain.strip().lower() in DISPOSABLE_EMAIL_DOMAINS
 
 
+FREE_EMAIL_DOMAINS = frozenset(
+    {
+        "gmail.com",
+        "yahoo.com",
+        "hotmail.com",
+        "outlook.com",
+        "icloud.com",
+        "protonmail.com",
+        "mail.com",
+        "aol.com",
+        "zoho.com",
+        "live.com",
+    }
+)
+
+
+def is_free_email_domain(domain: str) -> bool:
+    """Check if a domain matches common free webmail providers.
+
+    Args:
+        domain: Input domain string.
+
+    Returns:
+        True if domain is recognized as a free consumer webmail provider, False otherwise.
+    """
+    if not domain:
+        return False
+    return domain.strip().lower() in FREE_EMAIL_DOMAINS
+
+
