@@ -29,3 +29,16 @@ def test_campaign_create_rejects_empty_subject_after_sanitize() -> None:
 
     with pytest.raises(ValidationError):
         CampaignCreate(subject="   ", message="Body")
+
+
+def test_campaign_duplicate_schema() -> None:
+    from app.schemas.campaign import CampaignDuplicate
+
+    default_dup = CampaignDuplicate()
+    assert default_dup.new_subject is None
+
+    custom_dup = CampaignDuplicate(new_subject="Custom Subject")
+    assert custom_dup.new_subject == "Custom Subject"
+
+    sanitized = CampaignDuplicate(new_subject="Spaced\r\nSubject")
+    assert sanitized.new_subject == "Spaced Subject"
