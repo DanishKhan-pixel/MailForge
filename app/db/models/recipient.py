@@ -62,6 +62,11 @@ class Recipient(Base):
         return self.status == RecipientStatus.pending
 
     @property
+    def has_error(self) -> bool:
+        """Check if recipient record has an error message recorded."""
+        return bool(self.error_message and self.error_message.strip())
+
+    @property
     def display_name(self) -> str:
         """Get formatted recipient display name or email fallback."""
         if self.name and self.name.strip():
