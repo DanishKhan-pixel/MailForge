@@ -75,6 +75,7 @@ def test_utils_package_exports() -> None:
 
 
 def test_schemas_package_exports_campaign_filter() -> None:
+    assert hasattr(app.schemas, "CampaignDuplicate")
     assert hasattr(app.schemas, "CampaignQueryFilter")
     assert hasattr(app.schemas, "EmailPayload")
     assert hasattr(app.schemas, "CampaignStats")
