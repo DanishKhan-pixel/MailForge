@@ -80,6 +80,18 @@ def test_recipient_display_name() -> None:
     assert none_named.display_name == "anon2@example.com"
 
 
+def test_recipient_has_error() -> None:
+    cid = uuid.uuid4()
+    with_error = Recipient(id=1, campaign_id=cid, email="bad@example.com", error_message="SMTP connection timed out")
+    assert with_error.has_error is True
+
+    no_error = Recipient(id=2, campaign_id=cid, email="good@example.com", error_message=None)
+    assert no_error.has_error is False
+
+    empty_error = Recipient(id=3, campaign_id=cid, email="empty@example.com", error_message="   ")
+    assert empty_error.has_error is False
+
+
 
 
 def test_email_log_model_repr() -> None:
