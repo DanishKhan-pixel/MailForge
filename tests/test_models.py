@@ -140,6 +140,17 @@ def test_campaign_is_finished() -> None:
     assert completed.is_finished is True
 
 
+def test_campaign_is_running() -> None:
+    pending = Campaign(subject="Test", message="Body", status=CampaignStatus.pending)
+    assert pending.is_running is False
+
+    running = Campaign(subject="Test", message="Body", status=CampaignStatus.running)
+    assert running.is_running is True
+
+    completed = Campaign(subject="Test", message="Body", status=CampaignStatus.completed)
+    assert completed.is_running is False
+
+
 def test_campaign_success_rate() -> None:
     c_zero = Campaign(subject="Test", message="Body", total_emails=0)
     assert c_zero.success_rate == 0.0
