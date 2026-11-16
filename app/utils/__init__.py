@@ -9,6 +9,7 @@ from app.utils.email_utils import (
     extract_mailbox_name,
     format_recipient_display,
     is_disposable_email_domain,
+    is_free_email_domain,
     is_valid_email_domain,
 )
 from app.utils.formatters import format_file_size, mask_email
@@ -32,6 +33,7 @@ __all__ = [
     "extract_mailbox_name",
     "is_valid_email_domain",
     "is_disposable_email_domain",
+    "is_free_email_domain",
     "format_recipient_display",
     "sanitize_subject",
     "strip_html_tags",
