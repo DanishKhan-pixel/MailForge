@@ -40,6 +40,20 @@ class CampaignUpdate(BaseModel):
         return sanitize_subject(value)
 
 
+class CampaignDuplicate(BaseModel):
+    """Payload for duplicating an existing campaign."""
+
+    new_subject: str | None = Field(default=None, min_length=1, max_length=200, description="Optional new subject line")
+
+    @field_validator("new_subject", mode="before")
+    @classmethod
+    def _sanitize_subject(cls, value: str | None) -> str | None:
+        """Reject line breaks in subject lines to prevent SMTP header injection."""
+        if value is None:
+            return None
+        return sanitize_subject(value)
+
+
 class CampaignResponse(BaseModel):
     """Response structure for campaign data."""
 
