@@ -86,3 +86,13 @@ def test_extract_template_placeholders() -> None:
     assert extract_template_placeholders("") == []
     assert extract_template_placeholders(None) == []
 
+
+def test_capitalize_name() -> None:
+    from app.utils.string_utils import capitalize_name
+
+    assert capitalize_name("john doe") == "John Doe"
+    assert capitalize_name("  ALICE   SMITH  ") == "Alice Smith"
+    assert capitalize_name("mary") == "Mary"
+    assert capitalize_name("") == ""
+    assert capitalize_name(None) == ""
+
