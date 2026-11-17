@@ -73,6 +73,13 @@ class Campaign(Base):
         return round((self.sent_count / self.total_emails) * 100.0, 2)
 
     @property
+    def failure_rate(self) -> float:
+        """Calculate percentage of failed email deliveries relative to total."""
+        if (self.total_emails or 0) <= 0:
+            return 0.0
+        return round(((self.failed_count or 0) / self.total_emails) * 100.0, 2)
+
+    @property
     def pending_count(self) -> int:
         """Calculate count of pending recipients remaining in campaign."""
         if (self.total_emails or 0) <= 0:
