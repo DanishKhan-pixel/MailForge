@@ -152,6 +152,17 @@ def test_campaign_is_finished() -> None:
     assert completed.is_finished is True
 
 
+def test_campaign_is_pending() -> None:
+    pending = Campaign(subject="Test", message="Body", status=CampaignStatus.pending)
+    assert pending.is_pending is True
+
+    running = Campaign(subject="Test", message="Body", status=CampaignStatus.running)
+    assert running.is_pending is False
+
+    completed = Campaign(subject="Test", message="Body", status=CampaignStatus.completed)
+    assert completed.is_pending is False
+
+
 def test_campaign_is_running() -> None:
     pending = Campaign(subject="Test", message="Body", status=CampaignStatus.pending)
     assert pending.is_running is False
