@@ -11,6 +11,7 @@ from app.schemas.campaign import (
     CampaignStats,
     CampaignStatusResponse,
     CampaignSummaryStats,
+    EmailPreview,
 )
 from app.schemas.common import (
     BatchOperationResult,
@@ -58,6 +59,7 @@ __all__ = [
     "RecipientUpdate",
     "HealthResponse",
     "EmailPayload",
+    "EmailPreview",
     "SystemInfoResponse",
     "BatchOperationResult",
     "DateRangeFilter",
