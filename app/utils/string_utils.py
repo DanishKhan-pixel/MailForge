@@ -120,3 +120,17 @@ def extract_template_placeholders(template: str) -> list[str]:
     matches = re.findall(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", template)
     return sorted(set(matches))
 
+
+def capitalize_name(name: str | None) -> str:
+    """Properly capitalize person name with title casing across words.
+
+    Args:
+        name: Raw recipient name string or None.
+
+    Returns:
+        Capitalized name string with normalized single spaces.
+    """
+    if not name:
+        return ""
+    return " ".join(word.capitalize() for word in name.strip().split())
+
