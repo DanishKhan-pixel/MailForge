@@ -192,6 +192,11 @@ The test suite covers:
 - **Recipient Error Tracking**: Model property (`Recipient.has_error`) indicating failed delivery error message presence.
 - **Campaign Duplication Schema**: Payload model (`CampaignDuplicate`) supporting cloning with subject sanitization.
 - **Free Email Provider Detection**: Domain classification utility (`is_free_email_domain`) identifying consumer webmail domains.
+- **Campaign Pending State Flag**: Model property (`Campaign.is_pending`) identifying awaiting dispatch state.
+- **Campaign Failure Rate Telemetry**: Model property (`Campaign.failure_rate`) calculating failed delivery percentage.
+- **Email Log Response Check**: Model property (`EmailLog.has_response`) validating response payload presence.
+- **Email Template Preview Schema**: Payload model (`EmailPreview`) verifying subject and body rendering variables.
+- **Recipient Name Capitalization**: String normalization helper (`capitalize_name`) formatting display names.
 
 
 
