@@ -56,6 +56,11 @@ class Campaign(Base):
         return self.status == CampaignStatus.completed
 
     @property
+    def is_pending(self) -> bool:
+        """Check if campaign execution is in pending status."""
+        return self.status == CampaignStatus.pending
+
+    @property
     def is_running(self) -> bool:
         """Check if campaign processing is currently active."""
         return self.status == CampaignStatus.running
