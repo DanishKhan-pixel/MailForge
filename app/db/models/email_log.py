@@ -38,4 +38,9 @@ class EmailLog(Base):
         """Check if email log entry indicates failed delivery."""
         return self.status != "sent"
 
+    @property
+    def has_response(self) -> bool:
+        """Check if email log entry contains a response message."""
+        return bool(self.response and self.response.strip())
+
 
