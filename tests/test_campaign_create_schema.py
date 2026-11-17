@@ -42,3 +42,16 @@ def test_campaign_duplicate_schema() -> None:
 
     sanitized = CampaignDuplicate(new_subject="Spaced\r\nSubject")
     assert sanitized.new_subject == "Spaced Subject"
+
+
+def test_email_preview_schema() -> None:
+    from app.schemas.campaign import EmailPreview
+
+    preview = EmailPreview(subject="Test", message="Hello {name}", sample_name="Alice")
+    assert preview.subject == "Test"
+    assert preview.message == "Hello {name}"
+    assert preview.sample_name == "Alice"
+
+    sanitized = EmailPreview(subject="Line1\r\nLine2", message="Body")
+    assert sanitized.subject == "Line1 Line2"
+    assert sanitized.sample_name is None
