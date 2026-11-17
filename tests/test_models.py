@@ -117,6 +117,17 @@ def test_email_log_is_failure() -> None:
     assert failed_log.is_failure is True
 
 
+def test_email_log_has_response() -> None:
+    log_with_resp = EmailLog(id=1, recipient_id=1, status="sent", response="250 2.0.0 OK")
+    assert log_with_resp.has_response is True
+
+    log_no_resp = EmailLog(id=2, recipient_id=1, status="sent", response=None)
+    assert log_no_resp.has_response is False
+
+    log_empty_resp = EmailLog(id=3, recipient_id=1, status="sent", response="   ")
+    assert log_empty_resp.has_response is False
+
+
 
 def test_recipient_has_case_insensitive_unique_index() -> None:
     index_names = {index.name for index in Recipient.__table__.indexes}
