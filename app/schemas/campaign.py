@@ -54,6 +54,20 @@ class CampaignDuplicate(BaseModel):
         return sanitize_subject(value)
 
 
+class EmailPreview(BaseModel):
+    """Payload for previewing a rendered email template."""
+
+    subject: str = Field(..., min_length=1, max_length=200, description="Subject line template to preview")
+    message: str = Field(..., min_length=1, max_length=10000, description="Message body template to preview")
+    sample_name: str | None = Field(default=None, max_length=200, description="Optional sample recipient name")
+
+    @field_validator("subject", mode="before")
+    @classmethod
+    def _sanitize_subject(cls, value: str) -> str:
+        """Reject line breaks in subject lines to prevent SMTP header injection."""
+        return sanitize_subject(value)
+
+
 class CampaignResponse(BaseModel):
     """Response structure for campaign data."""
 
