@@ -14,6 +14,7 @@ from app.utils.email_utils import (
 )
 from app.utils.formatters import format_file_size, mask_email
 from app.utils.string_utils import (
+    capitalize_name,
     count_words,
     extract_template_placeholders,
     is_html_content,
@@ -35,6 +36,7 @@ __all__ = [
     "is_disposable_email_domain",
     "is_free_email_domain",
     "format_recipient_display",
+    "capitalize_name",
     "sanitize_subject",
     "strip_html_tags",
     "normalize_email",
