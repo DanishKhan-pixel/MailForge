@@ -185,6 +185,17 @@ def test_campaign_success_rate() -> None:
     assert c_full.success_rate == 100.0
 
 
+def test_campaign_failure_rate() -> None:
+    c_zero = Campaign(subject="Test", message="Body", total_emails=0)
+    assert c_zero.failure_rate == 0.0
+
+    c_partial = Campaign(subject="Test", message="Body", total_emails=10, sent_count=7, failed_count=3)
+    assert c_partial.failure_rate == 30.0
+
+    c_full_fail = Campaign(subject="Test", message="Body", total_emails=5, sent_count=0, failed_count=5)
+    assert c_full_fail.failure_rate == 100.0
+
+
 def test_campaign_pending_count() -> None:
     c_zero = Campaign(subject="Test", message="Body", total_emails=0)
     assert c_zero.pending_count == 0
