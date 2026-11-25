@@ -67,6 +67,11 @@ class Recipient(Base):
         return bool(self.error_message and self.error_message.strip())
 
     @property
+    def has_name(self) -> bool:
+        """Check if recipient has a non-empty name defined."""
+        return bool(self.name and self.name.strip())
+
+    @property
     def display_name(self) -> str:
         """Get formatted recipient display name or email fallback."""
         if self.name and self.name.strip():
