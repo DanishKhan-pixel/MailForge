@@ -71,6 +71,7 @@ def test_utils_package_exports() -> None:
     assert hasattr(app.utils, "is_html_content")
     assert hasattr(app.utils, "format_recipient_display")
     assert hasattr(app.utils, "capitalize_name")
+    assert hasattr(app.utils, "clean_whitespace")
     assert hasattr(app.utils, "count_words")
     assert hasattr(app.utils, "extract_template_placeholders")
 
