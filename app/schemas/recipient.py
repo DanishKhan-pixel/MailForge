@@ -97,6 +97,12 @@ class RecipientUpdate(BaseModel):
     name: str | None = Field(default=None, max_length=200, description="Optional recipient display name")
 
 
+class RecipientSearchFilter(BaseModel):
+    """Search query parameters for filtering campaign recipients."""
+
+    query: str = Field(..., min_length=1, max_length=100, description="Search term matching name or email")
+
+
 
 
 
