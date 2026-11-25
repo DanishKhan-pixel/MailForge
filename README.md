@@ -197,6 +197,11 @@ The test suite covers:
 - **Email Log Response Check**: Model property (`EmailLog.has_response`) validating response payload presence.
 - **Email Template Preview Schema**: Payload model (`EmailPreview`) verifying subject and body rendering variables.
 - **Recipient Name Capitalization**: String normalization helper (`capitalize_name`) formatting display names.
+- **Campaign Processed Count**: Model property (`Campaign.processed_count`) calculating combined count of sent and failed emails.
+- **Recipient Name Presence Flag**: Model property (`Recipient.has_name`) verifying explicit display name existence.
+- **Recipient Processed State**: Model property (`Recipient.is_processed`) indicating terminal delivery status.
+- **Recipient Search Filter**: Query schema (`RecipientSearchFilter`) validating recipient search term parameters.
+- **Whitespace Normalization Utility**: Text processing helper (`clean_whitespace`) collapsing consecutive whitespace and trimming.
 
 
 
