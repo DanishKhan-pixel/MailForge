@@ -92,6 +92,18 @@ def test_recipient_has_error() -> None:
     assert empty_error.has_error is False
 
 
+def test_recipient_has_name() -> None:
+    cid = uuid.uuid4()
+    with_name = Recipient(id=1, campaign_id=cid, email="alice@example.com", name="Alice")
+    assert with_name.has_name is True
+
+    no_name = Recipient(id=2, campaign_id=cid, email="anon@example.com", name=None)
+    assert no_name.has_name is False
+
+    empty_name = Recipient(id=3, campaign_id=cid, email="anon2@example.com", name="   ")
+    assert empty_name.has_name is False
+
+
 
 
 def test_email_log_model_repr() -> None:
