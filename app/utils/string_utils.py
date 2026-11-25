@@ -134,3 +134,17 @@ def capitalize_name(name: str | None) -> str:
         return ""
     return " ".join(word.capitalize() for word in name.strip().split())
 
+
+def clean_whitespace(text: str | None) -> str:
+    """Collapse consecutive whitespace characters and strip leading/trailing spaces.
+
+    Args:
+        text: Input string or None.
+
+    Returns:
+        Normalized string with single spaces between words, or empty string.
+    """
+    if not text:
+        return ""
+    return " ".join(text.split())
+
