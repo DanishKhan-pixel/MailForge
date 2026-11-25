@@ -122,3 +122,16 @@ def test_recipient_update_schema() -> None:
         RecipientUpdate(name="x" * 201)
 
 
+def test_recipient_search_filter_schema() -> None:
+    from app.schemas.recipient import RecipientSearchFilter
+
+    search_filter = RecipientSearchFilter(query="alice")
+    assert search_filter.query == "alice"
+
+    with pytest.raises(ValidationError):
+        RecipientSearchFilter(query="")
+
+    with pytest.raises(ValidationError):
+        RecipientSearchFilter(query="x" * 101)
+
+
