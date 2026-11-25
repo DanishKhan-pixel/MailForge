@@ -62,6 +62,11 @@ class Recipient(Base):
         return self.status == RecipientStatus.pending
 
     @property
+    def is_processed(self) -> bool:
+        """Check if recipient delivery has been processed (sent or failed)."""
+        return self.status in (RecipientStatus.sent, RecipientStatus.failed)
+
+    @property
     def has_error(self) -> bool:
         """Check if recipient record has an error message recorded."""
         return bool(self.error_message and self.error_message.strip())
