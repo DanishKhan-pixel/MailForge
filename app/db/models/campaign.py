@@ -93,5 +93,10 @@ class Campaign(Base):
         """Check if campaign has at least one recipient."""
         return (self.total_emails or 0) > 0
 
+    @property
+    def processed_count(self) -> int:
+        """Calculate count of processed recipients (sent + failed)."""
+        return (self.sent_count or 0) + (self.failed_count or 0)
+
 
 
