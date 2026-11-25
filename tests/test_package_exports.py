@@ -92,6 +92,7 @@ def test_schemas_package_exports_campaign_filter() -> None:
     assert hasattr(app.schemas, "RecipientQueryFilter")
     assert hasattr(app.schemas, "RecipientBulkDelete")
     assert hasattr(app.schemas, "RecipientUpdate")
+    assert hasattr(app.schemas, "RecipientSearchFilter")
 
 
 
