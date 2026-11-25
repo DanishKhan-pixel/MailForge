@@ -96,3 +96,12 @@ def test_capitalize_name() -> None:
     assert capitalize_name("") == ""
     assert capitalize_name(None) == ""
 
+
+def test_clean_whitespace() -> None:
+    from app.utils.string_utils import clean_whitespace
+
+    assert clean_whitespace("   Hello   World!   ") == "Hello World!"
+    assert clean_whitespace("Multiple \n\t spaces and \r newlines") == "Multiple spaces and newlines"
+    assert clean_whitespace("") == ""
+    assert clean_whitespace(None) == ""
+
