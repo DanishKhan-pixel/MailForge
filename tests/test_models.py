@@ -229,3 +229,11 @@ def test_campaign_has_recipients() -> None:
     assert c_with_recipients.has_recipients is True
 
 
+def test_campaign_processed_count() -> None:
+    c_zero = Campaign(subject="Test", message="Body", total_emails=0)
+    assert c_zero.processed_count == 0
+
+    c_some = Campaign(subject="Test", message="Body", total_emails=10, sent_count=3, failed_count=2)
+    assert c_some.processed_count == 5
+
+
