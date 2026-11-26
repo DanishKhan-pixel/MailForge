@@ -202,6 +202,8 @@ The test suite covers:
 - **Recipient Processed State**: Model property (`Recipient.is_processed`) indicating terminal delivery status.
 - **Recipient Search Filter**: Query schema (`RecipientSearchFilter`) validating recipient search term parameters.
 - **Whitespace Normalization Utility**: Text processing helper (`clean_whitespace`) collapsing consecutive whitespace and trimming.
+- **SMTP Authentication Check**: Settings property (`is_smtp_auth_configured`) validating username and password configuration.
+- **Readiness Response Schema**: Probe schema (`ReadyResponse`) structured status response for orchestrator health checks.
 
 
 
