@@ -94,6 +94,11 @@ class Settings(BaseSettings):
         return bool(self.smtp_host and self.smtp_port > 0 and self.smtp_from_email)
 
     @property
+    def is_smtp_auth_configured(self) -> bool:
+        """Check if SMTP authentication credentials (username and password) are provided."""
+        return bool(self.smtp_username and self.smtp_password)
+
+    @property
     def is_log_file_configured(self) -> bool:
         """Check if log directory and log filename are properly specified."""
         return bool(self.log_dir and self.log_file_name)
