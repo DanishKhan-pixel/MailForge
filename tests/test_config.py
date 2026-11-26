@@ -153,3 +153,14 @@ def test_log_settings_defaults() -> None:
     assert settings.log_dir == "logs"
     assert settings.log_file_name == "email_automation.log"
 
+
+def test_is_smtp_auth_configured_property() -> None:
+    unconfigured = Settings(SMTP_USERNAME="", SMTP_PASSWORD="")
+    assert unconfigured.is_smtp_auth_configured is False
+
+    partial = Settings(SMTP_USERNAME="user", SMTP_PASSWORD="")
+    assert partial.is_smtp_auth_configured is False
+
+    configured = Settings(SMTP_USERNAME="user", SMTP_PASSWORD="secretpassword")
+    assert configured.is_smtp_auth_configured is True
+
